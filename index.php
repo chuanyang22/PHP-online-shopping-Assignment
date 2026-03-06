@@ -6,6 +6,10 @@
     <title>Document</title>
 </head>
 <body>
-    halo
+    u guys all gay
 </body>
 </html>
+<?php
+    echo "Halo, guys! This is my first try for git.";
+    echo "halo world";
+?>

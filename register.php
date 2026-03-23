@@ -5,6 +5,11 @@ require_once 'lib/helpers.php';
 $errors      = [];
 $success_msg = '';  
 
+// NEW: Catch the success message after the page refreshes!
+if (isset($_GET['success']) && $_GET['success'] == 1) {
+    $success_msg = "Congratulations, you have successfully registered! <br><a href='login.php' style='color: #0056b3; font-weight: bold;'>Click here to Log In</a>";
+}
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     $username         = sanitize($_POST['username']);
@@ -57,15 +62,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         try {
             $stmt->execute([$username, $email, $hashed_password, $role]);
-            $success_msg = "Congratulations, you have successfully registered!";  
-            $username = ''; // clear the form
-            $email = '';    // clear the form
-
+            
+            // Redirect to show the success message
             header("Location: register.php?success=1");
             exit;
 
         } catch (PDOException $e) {
-            // THIS WILL SHOW US THE EXACT PROBLEM
             $errors['general'] = "Database Error: " . $e->getMessage();
         }
     }
@@ -76,57 +78,50 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="css/registerstyle.css">
+    <link rel="stylesheet" href="css/mainstyle.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="js/register.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Member Registration</title>
+    <title>Sign Up</title>
 </head>
-<body>
-    
-    <h2>Register an Account</h2>
 
-    <?php if (!empty($success_msg)): ?>
-        <p style='color:green;'><?= $success_msg ?> <a href="login.php">Login here</a></p>
-    <?php endif; ?>
-    
-    <?php display_error($errors, 'general'); ?>
+<body class="auth-body">
 
-    <form method='POST' action="register.php">
-        <div>
-            <label>Username:</label>
-            <input type="text" name="username" value="<?= isset($username) ? sanitize($username) : '' ?>">
-            <?php display_error($errors, 'username'); ?> 
+    <div class="auth-card">
+        <div class="auth-title">Sign Up</div>
+
+        <?php if (!empty($success_msg)): ?>
+            <div style="color: #155724; background-color: #d4edda; padding: 15px; border-radius: 4px; margin-bottom: 20px; font-size: 14px;">
+                <?= $success_msg ?>
+            </div>
+        <?php endif; ?>
+
+        <?php if (!empty($errors)): ?>
+            <div style="color: #ff132a; background-color: #f8d7da; padding: 15px; border-radius: 4px; margin-bottom: 20px; font-size: 14px; text-align: left;">
+                <ul style="margin: 0; padding-left: 20px;">
+                    <?php foreach ($errors as $error): ?>
+                        <li><?= htmlspecialchars($error) ?></li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+        <?php endif; ?>
+
+        <form method="POST" action="register.php">
+            <input type="text" name="username" class="auth-input" placeholder="Username" value="<?= isset($username) ? htmlspecialchars($username) : '' ?>">
+            
+            <input type="email" name="email" class="auth-input" placeholder="Email" value="<?= isset($email) ? htmlspecialchars($email) : '' ?>">
+            
+            <input type="password" name="password" class="auth-input" placeholder="Password">
+            
+            <input type="password" name="confirm_password" class="auth-input" placeholder="Confirm Password">
+            
+            <button type="submit" class="auth-btn">NEXT</button>
+        </form>
+
+        <div class="auth-footer">
+            Have an account? <a href="login.php">Log In</a>
         </div>
-        <br>
-        <div>
-            <label>Email:</label>
-            <input type="text" name="email" value="<?= isset($email) ? sanitize($email) : '' ?>">
-            <?php display_error($errors, 'email'); ?>
-        </div>
-        <br>
-        <div>
-            <label>Password:</label>
-            <input type="password" name="password">
-            <?php display_error($errors, 'password'); ?>
-        </div>
-        <br>
-        <div>
-            <label>Confirm Password:</label>
-            <input type="password" name="confirm_password">
-            <?php display_error($errors, 'confirm_password'); ?>
-        </div>
-        <br>
-        <button type="submit">Register</button>
-    </form>
-    
-    <br>
-    <p>Already have an account? <a href="login.php">Login here</a></p>
-    <?php if (isset($_GET['success']) && $_GET['success'] == 1): ?>
-        <script>
-            alert("Congratulations! You have successfully registered. You can now log in.");
-            window.location.href = "login.php"; // Redirect to login page after they click 'OK'
-        </script>
-    <?php endif; ?>
+    </div>
 
 </body>
 </html>

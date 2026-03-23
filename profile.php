@@ -23,32 +23,35 @@ $user = $stmt->fetch();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Profile Hub</title>
-    </head>
-<body>
-
-    <div style="text-align: center; margin-top: 20px;">
+    <link rel="stylesheet" href="css/mainstyle.css"> 
+</head>
+<body class="auth-body"> <div class="profile-card">
         <h2>My Profile</h2>
-        <a href="index.php">Back to Home</a> | <a href="logout.php">Logout</a>
-        <br><br>
+        <p>
+            <a href="index.php" style="color: #3d1ac7; text-decoration: underline;">Back to Home</a> | 
+            <a href="logout.php" style="color: #3d1ac7; text-decoration: underline;">Logout</a>
+        </p>
+        <br>
 
         <div id="current-photo">
             <?php if (!empty($user['profile_photo'])): ?>
-                <img src="uploads/<?= sanitize($user['profile_photo']) ?>" alt="Profile Photo" width="150" style="border-radius: 50%; border: 3px solid #ccc;">
+                <img src="uploads/<?= htmlspecialchars($user['profile_photo']) ?>" alt="Profile Picture" class="profile-pic">
             <?php else: ?>
-                <img src="https://via.placeholder.com/150" alt="Generic Placeholder" width="150" style="border-radius: 50%;">
+                <img src="https://ui-avatars.com/api/?name=<?= urlencode($user['username']) ?>&size=150&background=random&color=fff" alt="Default Avatar" class="profile-pic" style="border-radius: 50%;">
             <?php endif; ?>
         </div>
         
-        <h3>Welcome, <?= sanitize($user['username']) ?>!</h3>
-        <p>Email: <?= sanitize($user['email']) ?></p>
-        <p>Member Level: <?= sanitize($user['role']) ?></p>
+        <div class="profile-info">
+            <h3>Welcome, <?= sanitize($user['username']) ?>!</h3>
+            <p>Email: <?= sanitize($user['email']) ?></p>
+            <p>Member Level: <?= sanitize($user['role']) ?></p>
+        </div>
 
-        <hr>
+        <hr class="profile-divider">
 
         <div>
-            <a href="upload_photo.php"><button>Upload New Photo</button></a>
-            &nbsp;
-            <a href="change_password.php"><button>Change Password</button></a>
+            <a href="upload_photo.php"><button class="auth-btn" style="margin-bottom: 10px;">Upload New Photo</button></a>
+            <a href="change_password.php"><button class="auth-btn">Change Password</button></a>
         </div>
     </div>
 

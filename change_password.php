@@ -46,46 +46,38 @@ if (isset($_POST['change_password'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Change Password</title>
+    <link rel="stylesheet" href="css/mainstyle.css"> 
 </head>
-<body>
-    <div style="text-align: center; margin-top: 20px;">
-        <h2>Change Password</h2>
-        <a href="profile.php">Back to Profile Hub</a>
-        <br><br>
 
-        <?php if (!empty($success_msg)): ?>
-            <p style='color:green;'><?= $success_msg ?></p>
+<body class="auth-body"> <div class="auth-card">
+        <h2 style="margin-top: 0; color: #333;">Change Password</h2>
+        
+        <p>
+            <a href="profile.php" style="color: #7231fd; text-decoration: under; font-weight: bold;">Back to Profile Hub</a>
+        </p>
+        <br>
+
+        <?php if (isset($error_msg)): ?>
+            <div style="color: red; font-size: 13px; margin-bottom: 15px;"><?= $error_msg ?></div>
+        <?php endif; ?>
+        <?php if (isset($success_msg)): ?>
+            <div style="color: green; border: 1px solid green; background-color: #d4edda; padding: 10px; border-radius: 4px; margin-bottom: 20px; font-size: 14px;">
+                <?= $success_msg ?>
+            </div>
         <?php endif; ?>
 
-        <form method="POST" action="change_password.php" id="change-password-form">
+        <form method="POST" action="change_password.php">
             
-            <div>
-                <label>Current Password:</label><br>
-                <input type="password" name="current_password" required>
-                <?php display_error($errors, 'current_password'); ?>
-            </div>
-            <br>
-            <div>
-                <label>New Password:</label><br>
-                <input type="password" name="new_password" required>
-                <?php display_error($errors, 'new_password'); ?>
-            </div>
-            <br>
-            <div>
-                <label>Confirm New Password:</label><br>
-                <input type="password" name="confirm_password" required>
-                <?php display_error($errors, 'confirm_password'); ?>
-            </div>
-            <br>
-            <button type="submit" name="change_password">Change Password</button>
+            <input type="password" name="current_password" class="auth-input" placeholder="Current Password" required>
+            
+            <input type="password" name="new_password" class="auth-input" placeholder="New Password" required>
+            
+            <input type="password" name="confirm_password" class="auth-input" placeholder="Confirm New Password" required>
+            
+            <button type="submit" name="change_password" class="auth-btn">Change Password</button>
+
         </form>
     </div>
-
-    <script>
-        document.getElementById('change-password-form').onsubmit = function() {
-            return confirm("Are you sure you want to change your password?");
-        }
-    </script>
 
 </body>
 </html>

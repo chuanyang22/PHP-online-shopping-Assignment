@@ -108,6 +108,22 @@ if (isset($_GET['search']) && !empty(trim($_GET['search']))) {
         tr:nth-child(even) { background-color: #f9f9f9; } 
         
         .low-stock { color: #dc3545; font-weight: bold; } 
+
+        /* --- NEW: CUTE & AESTHETIC ALERT BANNER STYLES --- */
+        .alert-banner {
+            background-color: #fff4f4;
+            border-left: 6px solid #ff4d4d;
+            padding: 15px 20px;
+            margin-bottom: 25px;
+            border-radius: 8px;
+            display: flex;
+            align-items: flex-start;
+            box-shadow: 0 4px 10px rgba(255, 77, 77, 0.15);
+        }
+        .alert-icon { font-size: 1.8em; margin-right: 15px; line-height: 1; }
+        .alert-content p { margin: 0 0 5px 0; color: #cc0000; font-weight: bold; font-size: 1.1em; }
+        .alert-content ul { margin: 0; padding-left: 20px; color: #a71d2a; }
+        .alert-content li { margin-bottom: 3px; }
     </style>
 </head>
 <body>
@@ -127,6 +143,29 @@ if (isset($_GET['search']) && !empty(trim($_GET['search']))) {
         </a>
     </div>
 
+    <?php
+    try {
+        $alert_stmt = $pdo->query("SELECT name, stock_quantity FROM products WHERE stock_quantity < 5 ORDER BY stock_quantity ASC");
+        $low_stock_items = $alert_stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        if (count($low_stock_items) > 0) {
+            echo "<div class='alert-banner'>";
+            echo "<div class='alert-icon'>🔔</div>";
+            echo "<div class='alert-content'>";
+            echo "<p>Restock Needed! The following items are running low:</p>";
+            echo "<ul>";
+            foreach ($low_stock_items as $item) {
+                echo "<li><strong>" . htmlspecialchars($item['name']) . "</strong> &mdash; Only <strong>" . $item['stock_quantity'] . "</strong> left in stock!</li>";
+            }
+            echo "</ul>";
+            echo "</div>";
+            echo "</div>";
+        }
+    } catch(PDOException $e) {
+        // Silently ignore alert errors so it doesn't break the page
+    }
+    ?>
+
     <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #e9ecef;">
         <h2 style="margin-top: 0;">Add New Product</h2>
         <form action="" method="POST" enctype="multipart/form-data">
@@ -140,7 +179,6 @@ if (isset($_GET['search']) && !empty(trim($_GET['search']))) {
                 <select name="category_id" required>
                     <option value="">-- Select a Category --</option>
                     <?php
-                    // Fetch all categories to populate the dropdown
                     $cat_stmt = $pdo->query("SELECT * FROM categories ORDER BY name ASC");
                     while ($cat = $cat_stmt->fetch(PDO::FETCH_ASSOC)) {
                         echo "<option value='" . $cat['id'] . "'>" . htmlspecialchars($cat['name']) . "</option>";
@@ -189,7 +227,6 @@ if (isset($_GET['search']) && !empty(trim($_GET['search']))) {
         <tbody>
             <?php
             try {
-                // --- NEW: WE ARE NOW JOINING THE CATEGORIES TABLE SO WE CAN SEE THE NAME ---
                 if ($search_keyword !== "") {
                     $stmt = $pdo->prepare("
                         SELECT products.*, categories.name AS category_name 
@@ -219,7 +256,6 @@ if (isset($_GET['search']) && !empty(trim($_GET['search']))) {
                         echo "<td><img src='../uploads/" . htmlspecialchars($product['image_name']) . "' width='60' style='border-radius: 5px; border: 1px solid #ccc;'></td>";
                         echo "<td>" . htmlspecialchars($product['name']) . "</td>";
                         
-                        // Display the category name (or "None" if they added products before we built this feature)
                         $cat_display = $product['category_name'] ? htmlspecialchars($product['category_name']) : "<em style='color:#999;'>Uncategorized</em>";
                         echo "<td>" . $cat_display . "</td>";
                         

@@ -99,6 +99,24 @@ try {
         <?php endif; ?>
     </div>
 
+    <?php if ($product['stock_quantity'] > 0): ?>
+        <form action="cart.php" method="POST" style="margin-top: 25px;">
+            <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
+            <input type="hidden" name="action" value="add">
+            
+            <label for="quantity" style="font-weight: bold; color: #555;">Qty:</label>
+            <input type="number" name="quantity" id="quantity" value="1" min="1" max="<?php echo $product['stock_quantity']; ?>" style="width: 60px; padding: 8px; text-align: center; border-radius: 5px; border: 1px solid #ccc; margin: 0 10px;">
+            
+            <button type="submit" style="background: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 16px;">🛒 Add to Cart</button>
+        </form>
+    <?php endif; ?>
+
+    <form action="wishlist_action.php" method="POST" style="margin-top: 15px;">
+        <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
+        <input type="hidden" name="action" value="add">
+        <button type="submit" style="background: #e84393; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 16px; width: 100%; max-width: 250px;">❤️ Save to Wishlist</button>
+    </form>
+
     <a href="index.php" class="back-link">⬅ Back to Store</a>
 </div>
 

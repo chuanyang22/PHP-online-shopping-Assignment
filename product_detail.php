@@ -1,14 +1,21 @@
 <?php
 // product_detail.php
+session_start(); // We MUST start the session to check who is logged in!
 require_once 'lib/db.php';
 
-// 1. Get the Product ID from the URL (the ?id=1 part)
 if (!isset($_GET['id'])) {
     die("Error: Product ID is missing.");
 }
 $product_id = $_GET['id'];
 
-// 2. Fetch the product details from the database
+// Check if this item is already in the logged-in user's wishlist
+$in_wishlist = false;
+if (isset($_SESSION['user_id'])) {
+    $w_stmt = $pdo->prepare("SELECT id FROM wishlist WHERE member_id = ? AND product_id = ?");
+    $w_stmt->execute([$_SESSION['user_id'], $product_id]);
+    $in_wishlist = $w_stmt->rowCount() > 0;
+}
+
 try {
     $stmt = $pdo->prepare("SELECT products.*, categories.name AS category_name 
                            FROM products 
@@ -111,14 +118,40 @@ try {
         </form>
     <?php endif; ?>
 
-    <form action="wishlist_action.php" method="POST" style="margin-top: 15px;">
-        <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
-        <input type="hidden" name="action" value="add">
-        <button type="submit" style="background: #e84393; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 16px; width: 100%; max-width: 250px;">❤️ Save to Wishlist</button>
-    </form>
+    <?php if ($in_wishlist): ?>
+        <form action="wishlist_action.php" method="POST" style="margin-top: 15px;">
+            <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
+            <input type="hidden" name="action" value="remove">
+            <button type="submit" style="background: #e74c3c; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 16px; width: 100%; max-width: 250px;">❌ Remove from Wishlist</button>
+        </form>
+    <?php else: ?>
+        <form action="wishlist_action.php" method="POST" style="margin-top: 15px;">
+            <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
+            <input type="hidden" name="action" value="add">
+            <button type="submit" style="background: #e84393; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 16px; width: 100%; max-width: 250px;">❤️ Save to Wishlist</button>
+        </form>
+    <?php endif; ?>
 
     <a href="index.php" class="back-link">⬅ Back to Store</a>
 </div>
 
 </body>
+
+<?php if (isset($_SESSION['popup'])): ?>
+        <div id="toast-message" style="position: fixed; top: 20px; right: 20px; background: #2c3e50; color: white; padding: 15px 25px; border-radius: 5px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); z-index: 9999; font-weight: bold; transition: opacity 0.5s ease; border-left: 5px solid #2ecc71;">
+            <?= htmlspecialchars($_SESSION['popup']) ?>
+        </div>
+        <script>
+            // Automatically fade out and remove the popup after 3 seconds
+            setTimeout(() => {
+                let toast = document.getElementById('toast-message');
+                if(toast) {
+                    toast.style.opacity = '0';
+                    setTimeout(() => toast.remove(), 500);
+                }
+            }, 3000);
+        </script>
+        <?php unset($_SESSION['popup']); // Clear it so it doesn't show up again on refresh ?>
+    <?php endif; ?>
+
 </html>

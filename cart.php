@@ -31,6 +31,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 $_SESSION['cart'][$product_id] = $new_qty;
             }
+
+            $_SESSION['popup'] = "🛒 Item added to your cart!";
             
         } elseif ($action === 'update') {
             $qty = isset($_POST['quantity']) ? (int)$_POST['quantity'] : 1;

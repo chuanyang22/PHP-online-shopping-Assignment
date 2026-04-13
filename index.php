@@ -118,4 +118,22 @@ $products = $stmt->fetchAll();
     </div>
 
 </body>
+
+<?php if (isset($_SESSION['popup'])): ?>
+        <div id="toast-message" style="position: fixed; top: 20px; right: 20px; background: #2c3e50; color: white; padding: 15px 25px; border-radius: 5px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); z-index: 9999; font-weight: bold; transition: opacity 0.5s ease; border-left: 5px solid #2ecc71;">
+            <?= htmlspecialchars($_SESSION['popup']) ?>
+        </div>
+        <script>
+            // Automatically fade out and remove the popup after 3 seconds
+            setTimeout(() => {
+                let toast = document.getElementById('toast-message');
+                if(toast) {
+                    toast.style.opacity = '0';
+                    setTimeout(() => toast.remove(), 500);
+                }
+            }, 3000);
+        </script>
+        <?php unset($_SESSION['popup']); // Clear it so it doesn't show up again on refresh ?>
+    <?php endif; ?>
+
 </html>

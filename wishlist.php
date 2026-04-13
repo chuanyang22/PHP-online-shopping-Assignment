@@ -44,7 +44,25 @@ $wishlist_items = $stmt->fetchAll();
             <a href="index.php">🛍️ Online Store</a>
         </div>
         <div class="navbar-profile">
-            <a href="index.php">Back to Shop</a>
+            <?php if(isset($_SESSION['username'])): ?>
+                <span>Welcome, <strong><?= htmlspecialchars($_SESSION['username']) ?></strong></span>
+                
+                <span class="navbar-divider"></span>
+                <a href="cart.php">🛒 My Cart</a>
+
+                <span class="navbar-divider"></span>
+                <a href="wishlist.php">❤️ My Wishlist</a>
+                
+                <span class="navbar-divider"></span>
+                <a href="profile.php">My Profile</a>
+                
+                <span class="navbar-divider"></span>
+                <a href="logout.php">Logout</a>
+            <?php else: ?>
+                <a href="register.php">Sign Up</a>
+                <span class="navbar-divider"></span>
+                <a href="login.php">Login</a>
+            <?php endif; ?>
         </div>
     </div>
 

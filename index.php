@@ -98,6 +98,9 @@ $products = $stmt->fetchAll();
                 <span>Welcome, <strong><?= htmlspecialchars($_SESSION['username']) ?></strong></span>
                 
                 <span class="navbar-divider"></span>
+                <a href="cart.php">🛒 My Cart</a>
+
+                <span class="navbar-divider"></span>
                 <a href="wishlist.php">❤️ My Wishlist</a>
                 
                 <span class="navbar-divider"></span>

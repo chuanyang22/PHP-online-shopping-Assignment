@@ -487,32 +487,33 @@ body {
 
 
 /* =========================================================
-   ADMIN DASHBOARD STYLES
+   ADMIN MEMBER MANAGEMENT DASHBOARD
    ========================================================= */
 .admin-container { 
     max-width: 900px; 
     margin: 40px auto; 
     background: white; 
-    padding: 20px; 
+    padding: 30px; 
     border-radius: 8px; 
     box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
 }
 
-.admin-container table { 
+.admin-table { 
     width: 100%; 
     border-collapse: collapse; 
     margin-top: 20px; 
 }
 
-.admin-container th, 
-.admin-container td { 
+.admin-table th, 
+.admin-table td { 
     padding: 12px; 
     border: 1px solid #ddd; 
     text-align: left; 
 }
 
-.admin-container th { 
+.admin-table th { 
     background-color: #f8f9fa; 
+    color: #333;
 }
 
 .status-active { 
@@ -531,11 +532,12 @@ body {
     text-decoration: none; 
     color: white; 
     font-size: 12px; 
-    display: inline-block;
+    transition: 0.2s opacity;
+}
+
+.btn-toggle:hover {
+    opacity: 0.8;
 }
 
 .btn-ban { background-color: #dc3545; }
-.btn-ban:hover { background-color: #c82333; }
-
 .btn-unban { background-color: #28a745; }
-.btn-unban:hover { background-color: #218838; }

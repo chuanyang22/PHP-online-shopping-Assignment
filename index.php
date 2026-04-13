@@ -44,10 +44,22 @@ $products = $stmt->fetchAll();
         </div>
         
         <div class="navbar-profile">
+            <a href="index.php">🏠 Home</a>
+            <span class="navbar-divider"></span>
+
             <?php if(isset($_SESSION['username'])): ?>
-                <span>Welcome, <strong><?= htmlspecialchars($_SESSION['username']) ?></strong></span>
+                <!-- <span>Welcome, <strong><?= htmlspecialchars($_SESSION['username']) ?></strong></span>
+                
+                <span class="navbar-divider"></span> -->
+                <a href="cart.php">🛒 My Cart</a>
+                
+
                 <span class="navbar-divider"></span>
-                <a href="profile.php">My Profile</a>
+                <a href="wishlist.php">❤️ My Wishlist</a>
+                
+                <span class="navbar-divider"></span>
+                <a href="profile.php">🧏‍♂️ My Profile</a>
+                
                 <span class="navbar-divider"></span>
                 <a href="logout.php">Logout</a>
             <?php else: ?>
@@ -81,6 +93,15 @@ $products = $stmt->fetchAll();
                         <p class="price">$<?= number_format($product['price'], 2) ?></p>
                         
                         <a href="product_detail.php?id=<?= $product['id'] ?>" class="btn">View Details</a>
+
+                        <form action="cart.php" method="POST" style="display: inline-block;">
+                            <input type="hidden" name="product_id" value="<?= $product['id'] ?>">
+                            <input type="hidden" name="action" value="add">
+                            <input type="hidden" name="quantity" value="1">
+                            <button type="submit" class="btn" style="background: #27ae60;">🛒 Add</button>
+                        </form>
+
+                        <form action="wishlist_action.php" method="POST" style="display: inline-block;">
 
                         <form action="wishlist_action.php" method="POST" style="display: inline-block;">
                             <input type="hidden" name="product_id" value="<?= $product['id'] ?>">

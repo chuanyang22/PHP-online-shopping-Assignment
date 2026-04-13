@@ -88,7 +88,28 @@ if (!empty($_SESSION['cart'])) {
             <a href="index.php">🛍️ Online Store</a>
         </div>
         <div class="navbar-profile">
-             <a href="cart.php">Cart (<?= array_sum($_SESSION['cart'] ?? []) ?>)</a>
+            <a href="index.php">🏠 Home</a>
+            <span class="navbar-divider"></span>
+
+            <?php if(isset($_SESSION['username'])): ?>
+                <!-- <span>Welcome, <strong><?= htmlspecialchars($_SESSION['username']) ?></strong></span>
+                
+                <span class="navbar-divider"></span>-->
+                <a href="cart.php">🛒 My Cart</a>
+
+                <span class="navbar-divider"></span>
+                <a href="wishlist.php">❤️ My Wishlist</a>
+                
+                <span class="navbar-divider"></span>
+                <a href="profile.php">🧏‍♂️ My Profile</a>
+                
+                <span class="navbar-divider"></span>
+                <a href="logout.php">Logout</a>
+            <?php else: ?>
+                <a href="register.php">Sign Up</a>
+                <span class="navbar-divider"></span>
+                <a href="login.php">Login</a>
+            <?php endif; ?>
         </div>
     </div>
 

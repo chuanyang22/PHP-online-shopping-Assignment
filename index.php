@@ -132,8 +132,6 @@ $products = $stmt->fetchAll();
                         
                         <a href="product_detail.php?id=<?= $product['id'] ?>" class="btn">View Details</a>
 
-                        <a href="product_detail.php?id=<?= $product['id'] ?>" class="btn">View Details</a>
-
                         <form action="wishlist_action.php" method="POST" style="display: inline-block;">
                             <input type="hidden" name="product_id" value="<?= $product['id'] ?>">
                             <input type="hidden" name="action" value="add">

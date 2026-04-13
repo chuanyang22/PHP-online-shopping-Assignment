@@ -94,8 +94,11 @@ $products = $stmt->fetchAll();
         </div>
         
         <div class="navbar-profile">
+            <a href="index.php">🏠 Home</a>
+            <span class="navbar-divider"></span>
+
             <?php if(isset($_SESSION['username'])): ?>
-                <span>Welcome, <strong><?= htmlspecialchars($_SESSION['username']) ?></strong></span>
+                <!-- <span>Welcome, <strong><?= htmlspecialchars($_SESSION['username']) ?></strong></span> -->
                 
                 <span class="navbar-divider"></span>
                 <a href="cart.php">🛒 My Cart</a>

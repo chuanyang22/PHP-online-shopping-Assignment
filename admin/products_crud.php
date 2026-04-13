@@ -150,10 +150,14 @@ if (isset($_GET['search']) && !empty(trim($_GET['search']))) {
             <button type="button" class="btn-green">📁 Manage Categories</button>
         </a>
         
-        <a href="../index.php" style="text-decoration: none;">
+        <a href="../index.php" style="text-decoration: none; margin-right: 10px;">
             <button type="button" class="btn-grey">🛍️ View Storefront</button>
         </a>
-        
+
+        <a href="admin_member.php" style="text-decoration: none; margin-right: 10px;">
+            <button type="button" class="btn-grey">👥 Manage Members</button>
+        </a>
+
         <a href="logout.php" style="text-decoration: none; margin-left: auto;">
             <button type="button" class="btn-red">🚪 Log Out</button>
         </a>

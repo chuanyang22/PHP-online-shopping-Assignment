@@ -17,14 +17,14 @@ if (isset($_POST['login'])) {
     $stmt->execute([$email]);
     $admin = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    // Verify the password
+    // Inside login.php, where you verify the password
     if ($admin && password_verify($password, $admin['password'])) {
         $_SESSION['admin_logged_in'] = true;
+        $_SESSION['user_id'] = $admin['id']; // <--- ADD THIS LINE
         $_SESSION['admin_email'] = $admin['email'];
-        header("Location: products_crud.php"); // Send them to the dashboard!
+        $_SESSION['role'] = 'Admin';         // <--- ADD THIS LINE (so line 19 in admin_member.php works)
+        header("Location: products_crud.php"); 
         exit;
-    } else {
-        $error = "Invalid email or password!";
     }
 }
 ?>

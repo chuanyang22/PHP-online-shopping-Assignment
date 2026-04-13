@@ -92,16 +92,16 @@ if (!empty($_SESSION['cart'])) {
             <span class="navbar-divider"></span>
 
             <?php if(isset($_SESSION['username'])): ?>
-                <!-- <span>Welcome, <strong><?= htmlspecialchars($_SESSION['username']) ?></strong></span> -->
+                <!-- <span>Welcome, <strong><?= htmlspecialchars($_SESSION['username']) ?></strong></span>
                 
-                <span class="navbar-divider"></span>
+                <span class="navbar-divider"></span>-->
                 <a href="cart.php">🛒 My Cart</a>
 
                 <span class="navbar-divider"></span>
                 <a href="wishlist.php">❤️ My Wishlist</a>
                 
                 <span class="navbar-divider"></span>
-                <a href="profile.php">My Profile</a>
+                <a href="profile.php">🧏‍♂️ My Profile</a>
                 
                 <span class="navbar-divider"></span>
                 <a href="logout.php">Logout</a>

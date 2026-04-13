@@ -14,27 +14,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $product_id = $_POST['product_id'] ?? null;
     
     if ($product_id) {
+        // QUICK DATABASE CHECK: How many do we actually have in stock?
+        $stmt = $pdo->prepare("SELECT stock_quantity FROM products WHERE id = ?");
+        $stmt->execute([$product_id]);
+        $stock_data = $stmt->fetch();
+        $max_stock = $stock_data ? (int)$stock_data['stock_quantity'] : 0;
+
         if ($action === 'add') {
             $qty = isset($_POST['quantity']) ? (int)$_POST['quantity'] : 1;
-            // If item is already in cart, add to existing quantity. Otherwise, set it.
-            if (isset($_SESSION['cart'][$product_id])) {
-                $_SESSION['cart'][$product_id] += $qty;
+            $current_qty = isset($_SESSION['cart'][$product_id]) ? $_SESSION['cart'][$product_id] : 0;
+            $new_qty = $current_qty + $qty;
+            
+            // Server-side block: If they try to add more than exists, cap it at the max stock
+            if ($new_qty > $max_stock) {
+                $_SESSION['cart'][$product_id] = $max_stock;
             } else {
-                $_SESSION['cart'][$product_id] = $qty;
+                $_SESSION['cart'][$product_id] = $new_qty;
             }
+            
         } elseif ($action === 'update') {
             $qty = isset($_POST['quantity']) ? (int)$_POST['quantity'] : 1;
+            
+            // Server-side block: Cap the manual update at max stock
+            if ($qty > $max_stock) {
+                $qty = $max_stock;
+            }
+
             if ($qty > 0) {
                 $_SESSION['cart'][$product_id] = $qty;
             } else {
                 unset($_SESSION['cart'][$product_id]); // Remove if quantity set to 0
             }
+            
         } elseif ($action === 'remove') {
             unset($_SESSION['cart'][$product_id]);
         }
     }
-    // Redirect to the same page to prevent form resubmission popups on refresh
-    header("Location: cart.php");
+    
+    // Check where the user came from. If we know, send them back there. Otherwise, default to cart.php
+    $return_url = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : 'cart.php';
+    
+    header("Location: " . $return_url);
     exit();
 }
 
@@ -142,8 +162,8 @@ if (!empty($_SESSION['cart'])) {
                                 <form action="cart.php" method="POST" style="display: inline;">
                                     <input type="hidden" name="action" value="update">
                                     <input type="hidden" name="product_id" value="<?= $item['id'] ?>">
-                                    <input type="number" name="quantity" value="<?= $item['cart_qty'] ?>" min="1" max="<?= $item['stock_quantity'] ?>" style="width: 50px;">
-                                    <button type="submit" class="btn-small">Update</button>
+                                    
+                                    <input type="number" name="quantity" value="<?= $item['cart_qty'] ?>" min="1" max="<?= $item['stock_quantity'] ?>" style="width: 50px; padding: 5px;" onchange="this.form.submit()">
                                 </form>
                             </td>
                             <td><strong>$<?= number_format($item['subtotal'], 2) ?></strong></td>

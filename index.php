@@ -140,6 +140,15 @@ $products = $stmt->fetchAll();
                         
                         <a href="product_detail.php?id=<?= $product['id'] ?>" class="btn">View Details</a>
 
+                        <form action="cart.php" method="POST" style="display: inline-block;">
+                            <input type="hidden" name="product_id" value="<?= $product['id'] ?>">
+                            <input type="hidden" name="action" value="add">
+                            <input type="hidden" name="quantity" value="1">
+                            <button type="submit" class="btn" style="background: #27ae60;">🛒 Add</button>
+                        </form>
+
+                        <form action="wishlist_action.php" method="POST" style="display: inline-block;">
+
                         <form action="wishlist_action.php" method="POST" style="display: inline-block;">
                             <input type="hidden" name="product_id" value="<?= $product['id'] ?>">
                             <input type="hidden" name="action" value="add">

@@ -157,6 +157,13 @@ if (isset($_GET['search']) && !empty(trim($_GET['search']))) {
         <a href="admin_member.php" style="text-decoration: none; margin-right: 10px;">
             <button type="button" class="btn-grey">👥 Manage Members</button>
         </a>
+        <a href="dashboard.php" style="text-decoration: none; margin-right: 10px;">
+        <button type="button" class="btn-green">📊 Dashboard</button>
+        </a>
+
+        <a href="order_list.php" style="text-decoration: none; margin-right: 10px;">
+        <button type="button" class="btn-green">📦Manage Orders</button>
+        </a>
 
         <a href="logout.php" style="text-decoration: none; margin-left: auto;">
             <button type="button" class="btn-red">🚪 Log Out</button>

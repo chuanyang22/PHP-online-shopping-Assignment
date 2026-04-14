@@ -3,11 +3,7 @@ require_once '../lib/auth.php';
 require_once '../lib/db.php';
 require_once '../lib/helpers.php';
 
-// Ensure only admins can see this
-// require_admin(); // Uncomment this if you have a require_admin function
-
-// Query to get top selling products
-// It joins products and order_items to sum up the quantities sold
+// 1. Get Chart Data
 $stmt = $pdo->query("
     SELECT p.name, SUM(oi.quantity) as total_sold 
     FROM order_items oi 
@@ -18,10 +14,8 @@ $stmt = $pdo->query("
 ");
 $chart_data = $stmt->fetchAll();
 
-// Prepare data for the JavaScript Chart
 $labels = [];
 $values = [];
-
 foreach ($chart_data as $row) {
     $labels[] = $row['name'];
     $values[] = $row['total_sold'];
@@ -32,50 +26,56 @@ foreach ($chart_data as $row) {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Dashboard - Analytics</title>
-    <link rel="stylesheet" href="../css/mainstyle.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="../css/mainstyle.css"> <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body>
-    <div class="page-container" style="max-width: 800px; margin: auto;">
-        <h2>Admin Dashboard</h2>
-        <p><a href="admin_order_list.php">Manage Orders</a> | <a href="../index.php">View Store</a></p>
+<body style="background: #f4f7f6; padding: 20px;">
+
+    <div style="display: flex; align-items: center; margin-bottom: 20px; padding: 10px; background: #fff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+        <a href="dashboard.php" style="text-decoration: none; margin-right: 10px;">
+            <button type="button" class="btn-green" style="background:#27ae60; color:white; border:none; padding:10px; border-radius:5px;">📊 Dashboard</button>
+        </a>
+        <a href="order_list.php" style="text-decoration: none; margin-right: 10px;">
+            <button type="button" class="btn-green" style="background:#27ae60; color:white; border:none; padding:10px; border-radius:5px;">📦 Manage Orders</button>
+        </a>
+        <a href="products_crud.php" style="text-decoration: none; margin-right: 10px;">
+            <button type="button" class="btn-green" style="background:#27ae60; color:white; border:none; padding:10px; border-radius:5px;">🛒 Manage Products</button>
+        </a>
+        <a href="logout.php" style="text-decoration: none; margin-left: auto;">
+            <button type="button" class="btn-red" style="background:#e74c3c; color:white; border:none; padding:10px; border-radius:5px;">🚪 Log Out</button>
+        </a>
+    </div>
+
+    <div style="background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
+        <h3 style="color: #34495e;">🔥 Top Selling Products</h3>
         
-        <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-            <h3>🔥 Top Selling Products</h3>
-            <canvas id="sellingChart"></canvas>
-        </div>
+        <?php if(empty($labels)): ?>
+            <div style="text-align: center; padding: 50px;">
+                <p style="color: #95a5a6; font-size: 1.2em;">No sales recorded yet.</p>
+                <p style="color: #bdc3c7;">Try placing an order as a member first!</p>
+            </div>
+        <?php else: ?>
+            <canvas id="sellingChart" style="max-height: 400px;"></canvas>
+        <?php endif; ?>
     </div>
 
     <script>
+        <?php if(!empty($labels)): ?>
         const ctx = document.getElementById('sellingChart').getContext('2d');
-        const sellingChart = new Chart(ctx, {
-            type: 'bar', // You can change this to 'pie' or 'line'
+        new Chart(ctx, {
+            type: 'bar',
             data: {
                 labels: <?php echo json_encode($labels); ?>,
                 datasets: [{
-                    label: 'Quantity Sold',
+                    label: 'Units Sold',
                     data: <?php echo json_encode($values); ?>,
-                    backgroundColor: [
-                        'rgba(255, 99, 132, 0.7)',
-                        'rgba(54, 162, 235, 0.7)',
-                        'rgba(255, 206, 86, 0.7)',
-                        'rgba(75, 192, 192, 0.7)',
-                        'rgba(153, 102, 255, 0.7)'
-                    ],
-                    borderColor: 'rgba(0, 0, 0, 0.1)',
-                    borderWidth: 1
+                    backgroundColor: '#1dee12',
+                    borderRadius: 5
                 }]
             },
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: { stepSize: 1 }
-                    }
-                }
-            }
+            options: { responsive: true, scales: { y: { beginAtZero: true } } }
         });
+        <?php endif; ?>
     </script>
 </body>
 </html>

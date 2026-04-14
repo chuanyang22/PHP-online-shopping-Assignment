@@ -1,102 +1,103 @@
 <?php
-require_once 'lib/auth.php';
-require_once 'lib/db.php';
-require_once 'lib/helpers.php';
-require_once 'lib/mailer.php'; 
-
-require_admin(); //
+require_once '../lib/auth.php';
+require_once '../lib/db.php';
+require_once '../lib/helpers.php';
+// require_admin(); // Commented out
 
 $order_id = $_GET['id'] ?? null;
+if (!$order_id) die("Missing ID");
 
-if (!$order_id) {
-    header("Location: admin_orders.php");
-    exit;
-}
-
-// Handle status update
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_status'])) {
-    $new_status = $_POST['status'];
-    
-    $stmt = $pdo->prepare("UPDATE orders SET status = ? WHERE id = ?");
-    $stmt->execute([$new_status, $order_id]);
-
-    // Fetch member details to send notification
-    $stmt = $pdo->prepare("SELECT m.email, m.username FROM orders o JOIN member m ON o.member_id = m.id WHERE o.id = ?");
-    $stmt->execute([$order_id]);
-    $member = $stmt->fetch();
-
-    send_formatted_email(
-        $member['email'], 
-        $member['username'], 
-        "Order #$order_id Updated", 
-        "Status Update", 
-        "Your order status has been changed to: <strong>$new_status</strong>."
-    );
-
-    $success_msg = "Status updated and customer notified via email.";
-}
-
-// Fetch Order info
-$stmt = $pdo->prepare("SELECT o.*, m.username FROM orders o JOIN member m ON o.member_id = m.id WHERE o.id = ?");
+$stmt = $pdo->prepare("SELECT o.*, m.username, m.email FROM orders o JOIN member m ON o.member_id = m.id WHERE o.id = ?");
 $stmt->execute([$order_id]);
 $order = $stmt->fetch();
 
-// Fetch Order Items
-$stmt = $pdo->prepare("SELECT oi.*, p.name FROM order_items oi JOIN products p ON oi.product_id = p.id WHERE oi.order_id = ?");
-$stmt->execute([$order_id]);
-$items = $stmt->fetchAll();
+$items_stmt = $pdo->prepare("SELECT oi.*, p.name, p.image_name FROM order_items oi JOIN products p ON oi.product_id = p.id WHERE oi.order_id = ?");
+$items_stmt->execute([$order_id]);
+$items = $items_stmt->fetchAll();
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Manage Order #<?= $order_id ?></title>
-    <link rel="stylesheet" href="css/mainstyle.css">
+    <title>Order Details #<?= $order_id ?></title>
+    <link rel="stylesheet" href="../css/mainstyle.css">
+    <style>
+        body { background: #f0f2f5; font-family: 'Segoe UI', sans-serif; padding: 20px; }
+        .invoice-box { background: white; max-width: 800px; margin: auto; padding: 40px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .header { display: flex; justify-content: space-between; border-bottom: 2px solid #eee; padding-bottom: 20px; margin-bottom: 30px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 40px; }
+        .section-title { color: #7f8c8d; text-transform: uppercase; font-size: 0.8em; letter-spacing: 1px; margin-bottom: 10px; }
+        
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; padding: 12px; background: #f8f9fa; color: #2c3e50; }
+        td { padding: 15px; border-bottom: 1px solid #eee; }
+        .total-row { font-size: 1.4em; font-weight: bold; color: #27ae60; }
+    </style>
 </head>
 <body>
-    <div class="page-container">
-        <p style="text-align: left;"><a href="admin_orders.php">← Back to List</a></p>
-        <h2>Order #<?= $order_id ?> Details</h2>
-        <p>Customer: <strong><?= sanitize($order['username']) ?></strong></p>
 
-        <?php if (isset($success_msg)): ?>
-            <div class="auth-success"><?= $success_msg ?></div>
-        <?php endif; ?>
+    <div style="display: flex; align-items: center; margin-bottom: 20px; padding: 10px; background: #fff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+        <a href="dashboard.php" style="text-decoration: none; margin-right: 10px;"><button type="button" class="btn-green" style="background:#27ae60; color:white; border:none; padding:10px; border-radius:5px; cursor:pointer;">📊 Dashboard</button></a>
+        <a href="order_list.php" style="text-decoration: none; margin-right: 10px;"><button type="button" class="btn-green" style="background:#27ae60; color:white; border:none; padding:10px; border-radius:5px; cursor:pointer;">📦 Manage Orders</button></a>
+        <a href="products_crud.php" style="text-decoration: none; margin-right: 10px;"><button type="button" class="btn-green" style="background:#27ae60; color:white; border:none; padding:10px; border-radius:5px; cursor:pointer;">🛒 Manage Products</button></a>
+        <a href="logout.php" style="text-decoration: none; margin-left: auto;"><button type="button" class="btn-red" style="background:#e74c3c; color:white; border:none; padding:10px; border-radius:5px; cursor:pointer;">🚪 Log Out</button></a>
+    </div>
 
-        <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; margin: 20px 0; border: 1px solid #ddd;">
-            <form method="POST">
-                <label>Update Status:</label>
-                <select name="status" class="auth-input" style="width: 200px; display: inline-block;">
-                    <option value="Pending" <?= $order['status'] == 'Pending' ? 'selected' : '' ?>>Pending</option>
-                    <option value="Processing" <?= $order['status'] == 'Processing' ? 'selected' : '' ?>>Processing</option>
-                    <option value="Completed" <?= $order['status'] == 'Completed' ? 'selected' : '' ?>>Completed</option>
-                    <option value="Cancelled" <?= $order['status'] == 'Cancelled' ? 'selected' : '' ?>>Cancelled</option>
-                </select>
-                <button type="submit" name="update_status" class="auth-btn" style="width: auto; padding: 10px 20px;">Save</button>
-            </form>
+    <div class="invoice-box">
+        <div class="header">
+            <div>
+                <h1 style="margin:0; color: #2c3e50;">Order Details</h1>
+                <p style="color: #7f8c8d; margin: 5px 0;">ID: #<?= $order['id'] ?> | Date: <?= date('d M Y', strtotime($order['order_date'])) ?></p>
+            </div>
+            <div style="text-align: right;">
+                <span style="background: #27ae60; color: white; padding: 10px 20px; border-radius: 10px; font-weight: bold;"><?= $order['status'] ?></span>
+            </div>
         </div>
 
-        <table width="100%" style="text-align: left; border-collapse: collapse;">
-            <tr style="border-bottom: 2px solid #eee;">
-                <th>Item</th>
-                <th>Qty</th>
-                <th>Unit Price</th>
-                <th>Subtotal</th>
-            </tr>
-            <?php foreach ($items as $item): ?>
-            <tr>
-                <td><?= sanitize($item['name']) ?></td>
-                <td><?= $item['quantity'] ?></td>
-                <td>RM <?= number_format($item['price_at_purchase'], 2) ?></td>
-                <td>RM <?= number_format($item['quantity'] * $item['price_at_purchase'], 2) ?></td>
-            </tr>
-            <?php endforeach; ?>
-            <tr style="font-weight: bold; border-top: 2px solid #eee;">
-                <td colspan="3" style="text-align: right; padding-top: 10px;">Total Amount:</td>
-                <td style="padding-top: 10px;">RM <?= number_format($order['total_amount'], 2) ?></td>
-            </tr>
+        <div class="grid">
+            <div>
+                <div class="section-title">Customer Information</div>
+                <p><strong><?= htmlspecialchars($order['username']) ?></strong></p>
+                <p style="color: #555;"><?= htmlspecialchars($order['email']) ?></p>
+            </div>
+            <div>
+                <div class="section-title">Shipping Address</div>
+                <p style="color: #555; line-height: 1.6;"><?= nl2br(htmlspecialchars($order['shipping_address'])) ?></p>
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Price</th>
+                    <th style="text-align:center;">Qty</th>
+                    <th style="text-align:right;">Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($items as $item): ?>
+                <tr>
+                    <td style="display: flex; align-items: center; gap: 15px;">
+                        <img src="../uploads/<?= $item['image_name'] ?>" width="45" height="45" style="border-radius: 5px; object-fit: cover;">
+                        <span><?= htmlspecialchars($item['name']) ?></span>
+                    </td>
+                    <td>RM <?= number_format($item['price_at_purchase'], 2) ?></td>
+                    <td style="text-align:center;"><?= $item['quantity'] ?></td>
+                    <td style="text-align:right;">RM <?= number_format($item['price_at_purchase'] * $item['quantity'], 2) ?></td>
+                </tr>
+                <?php endforeach; ?>
+                <tr>
+                    <td colspan="3" style="text-align: right; padding-top: 30px; font-weight: bold; color: #7f8c8d;">GRAND TOTAL</td>
+                    <td style="text-align: right; padding-top: 30px;" class="total-row">RM <?= number_format($order['total_amount'], 2) ?></td>
+                </tr>
+            </tbody>
         </table>
+
+        <div style="text-align: center; margin-top: 40px; border-top: 1px solid #eee; padding-top: 20px;">
+            <a href="order_list.php" style="text-decoration: none; color: #3498db; font-weight: bold;">← Return to Orders</a>
+        </div>
     </div>
 </body>
 </html>

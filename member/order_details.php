@@ -1,10 +1,8 @@
 <?php
-require_once '../lib/auth.php';
-require_once '../lib/db.php';
-require_once '../lib/helpers.php';
+// Include the header first - this provides the DB connection ($pdo) and starts the session
+include '../header.php'; 
 
-require_login();
-$order_id = $_GET['id'] ?? 0;
+$order_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 $member_id = $_SESSION['user_id'];
 
 // Fetch order main info
@@ -12,7 +10,11 @@ $stmt = $pdo->prepare("SELECT * FROM orders WHERE id = ? AND member_id = ?");
 $stmt->execute([$order_id, $member_id]);
 $order = $stmt->fetch();
 
-if (!$order) { die("Order not found."); }
+if (!$order) { 
+    echo "<div class='home-container'><h2>Order not found.</h2></div>";
+    include '../footer.php';
+    exit;
+}
 
 // Fetch items in this order
 $stmt = $pdo->prepare("
@@ -24,62 +26,92 @@ $stmt = $pdo->prepare("
 $stmt->execute([$order_id]);
 $items = $stmt->fetchAll();
 ?>
+<style>
+    /* 2. This hides the 'broken' links from the shared header just for this page */
+    .nav-menu, .navbar-profile, .navbar-brand {
+        display: none !important;
+    }
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Order Details #<?= $order['id'] ?></title>
-    <link rel="stylesheet" href="css/mainstyle.css">
-</head>
-<body>
-    <div class="page-container">
-        <h2>Order Details #<?= $order['id'] ?></h2>
-        <p>Status: <strong><?= $order['status'] ?></strong></p>
-        <p>Shipping to: <?= sanitize($order['shipping_address']) ?></p>
-        
-        <table style="width:100%; border-collapse: collapse; margin-top: 20px; border: 1px solid #ddd;">
-    <thead>
-        <tr style="background-color: #e4985d; text-align: left; border-bottom: 2px solid #ddd;">
-            <th style="padding: 12px;">Product Image</th>
-            <th style="padding: 12px;">Product Name</th>
-            <th style="padding: 12px;">Quantity</th>
-            <th style="padding: 12px;">Price</th>
-            <th style="padding: 12px;">Subtotal</th>
-        </tr>
-    </thead>
-    <tbody>
-        <?php foreach ($items as $item): ?>
-            <tr style="border-bottom: 1px solid #eee;">
-                <td style="padding: 10px; width: 100px;">
-                    <?php 
-                        $img = !empty($item['image_name']) ? '../uploads/' . $item['image_name'] : '../uploads/default.png'; 
-                    ?>
-                    <img src="<?= $img ?>" alt="Snack" style="width: 80px; height: 80px; object-fit: contain; border: 1px solid #ddd; padding: 5px; background: #fff;">
-                </td>
-                <td style="padding: 10px; vertical-align: middle;">
-                    <strong><?= htmlspecialchars($item['name']) ?></strong>
-                </td>
-                <td style="padding: 10px; vertical-align: middle;">
-                    <?= $item['quantity'] ?>
-                </td>
-                <td style="padding: 10px; vertical-align: middle;">
-                    RM <?= number_format($item['price_at_purchase'], 2) ?>
-                </td>
-                <td style="padding: 10px; vertical-align: middle;">
-                    RM <?= number_format($item['price_at_purchase'] * $item['quantity'], 2) ?>
-                </td>
-            </tr>
-        <?php endforeach; ?>
-    </tbody>
-</table>
-                
-            </tbody>
-        </table>
-        <p><strong>Grand Total: RM <?= number_format($order['total_amount'], 2) ?></strong></p>
-        <a href="order_history.php" style="text-decoration: none; background: #34495e; color: white; padding: 8px 15px; border-radius: 4px; font-size: 14px;">
-        ⬅️ Back to History
-        </a>
+    /* 3. Style for your NEW manual buttons */
+    .member-nav {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        background: white;
+        padding: 15px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+    }
+    .m-btn {
+        text-decoration: none;
+        color: #2c3e50;
+        background: #f8f9fa;
+        padding: 10px 20px;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        font-size: 0.8em;
+        font-weight: bold;
+    }
+    .m-btn:hover { background: #e67e22; color: white; }
+    .m-btn.active { background: #e67e22; color: white; border-color: #d35400; }
+</style>
+
+<div class="member-nav">
+    <a href="../index.php" class="m-btn"><span>🏠</span> Home</a>
+    <a href="../cart.php" class="m-btn"><span>🛒</span> My Cart</a>
+    <a href="order_history.php" class="m-btn active"><span>📜</span> My Orders</a>
+    <a href="../profile.php" class="m-btn"><span>🧏‍♂️</span> My Profile</a>
+    <a href="../logout.php" class="m-btn" style="color: #e74c3c;"><span>🚪</span> Logout</a>
+</div>
+</style>
+<div class="home-container" style="padding: 20px; max-width: 700px; margin: 0 auto;">
+    <div style="margin-bottom: 20px;">
+        <a href="order_history.php" style="text-decoration: none; color: #3498db; font-weight: bold;">⬅️ Back to History</a>
     </div>
-</body>
-</html>
+
+    <div style="background: #1abc9c; color: white; padding: 25px; border-radius: 12px; margin-bottom: 20px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+        <h2 style="margin: 0;">Order #<?= $order['id'] ?> is <?= htmlspecialchars($order['status']) ?></h2>
+        <p style="margin: 10px 0 0 0; opacity: 0.9;">Placed on: <?= $order['order_date'] ?></p>
+    </div>
+
+    <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 20px; border-left: 5px solid #f39c12;">
+        <h4 style="margin-top: 0; color: #f39c12; text-transform: uppercase; font-size: 0.85em; letter-spacing: 1px;">Shipping Information</h4>
+        <p style="color: #34495e; line-height: 1.6; margin-bottom: 0;">
+            <strong>Address:</strong><br>
+            <?= nl2br(htmlspecialchars($order['shipping_address'])) ?>
+        </p>
+    </div>
+
+    <div style="background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+        <div style="padding: 15px; background: #f8f9fa; border-bottom: 1px solid #eee; font-weight: bold; color: #2c3e50;">Items Ordered</div>
+        
+        <?php foreach ($items as $item): 
+            $img = !empty($item['image_name']) ? '../uploads/' . $item['image_name'] : '../uploads/default.png';
+        ?>
+            <div style="display: flex; gap: 15px; padding: 15px; border-bottom: 1px solid #f9f9f9; align-items: center;">
+                <img src="<?= $img ?>" style="width: 70px; height: 70px; object-fit: contain; background: #fff; border: 1px solid #eee; border-radius: 8px;">
+                
+                <div style="flex-grow: 1;">
+                    <div style="font-weight: bold; color: #2c3e50; font-size: 1.1em;"><?= htmlspecialchars($item['name']) ?></div>
+                    <div style="font-size: 0.9em; color: #7f8c8d; margin-top: 4px;">Qty: <?= $item['quantity'] ?> × RM <?= number_format($item['price_at_purchase'], 2) ?></div>
+                </div>
+
+                <div style="font-weight: bold; color: #2c3e50;">
+                    RM <?= number_format($item['price_at_purchase'] * $item['quantity'], 2) ?>
+                </div>
+            </div>
+        <?php endforeach; ?>
+
+        <div style="padding: 20px; background: #fff; text-align: right; border-top: 2px solid #f8f9fa;">
+            <div style="color: #7f8c8d; font-size: 0.9em; margin-bottom: 5px;">Total Amount Paid</div>
+            <div style="font-size: 1.6em; font-weight: bold; color: #e67e22;">
+                RM <?= number_format($order['total_amount'], 2) ?>
+            </div>
+        </div>
+    </div>
+</div>
+
+<?php include '../footer.php'; ?>

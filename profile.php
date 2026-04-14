@@ -32,9 +32,7 @@ $user = $stmt->fetch();
         <p>
             <a href="index.php" style="color: #3d1ac7; text-decoration: underline;">Back to Home</a> | 
             <a href="logout.php" style="color: #3d1ac7; text-decoration: underline;">Logout</a> |
-            <a href="member/order_history.php" style="text-decoration: none; background: #3d1ac7; color: white; padding: 8px 15px; border-radius: 4px; font-size: 14px;">
-                Order History
-            </a> 
+            <a href="member/order_history.php" style="color: #3d1ac7; text-decoration: underline;">History</a> |
         </p>
         <br>
 

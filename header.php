@@ -1,5 +1,7 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 require_once 'lib/db.php';
 require_once 'lib/helpers.php';
 ?>

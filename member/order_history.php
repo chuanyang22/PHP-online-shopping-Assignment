@@ -31,9 +31,14 @@ $orders = $stmt->fetchAll();
 <body>
     <div class="page-container">
         <h2>My Order History</h2>
+        <div style="margin-bottom: 20px;">
+    <a href="../profile.php" class="btn" style="background: #34495e; color: white; text-decoration: none; padding: 10px 15px; border-radius: 5px;">
+        ⬅️ Back to Profile
+    </a>
+</div>
         <table width="100%" border="1" style="border-collapse: collapse;">
             <thead>
-                <tr style="background: #f4f4f4;">
+                <tr style="background: #ed8a27;">
                     <th>Order ID</th>
                     <th>Date</th>
                     <th>Total</th>
@@ -49,7 +54,10 @@ $orders = $stmt->fetchAll();
                     <td>RM <?= number_format($order['total_amount'], 2) ?></td>
                     <td><?= $order['status'] ?></td>
                     <td>
-                        <a href="order_details.php?id=<?= $order['id'] ?>">View Details</a>
+                        <a href="order_details.php?id=<?= $order['id'] ?>" 
+                        style="text-decoration: none; background-color: #34495e; color: white; padding: 6px 12px; border-radius: 4px; font-size: 13px; display: inline-block;">
+                         View Details
+                        </a>
                         <?php if ($order['status'] == 'Pending'): ?>
                             | <form method="POST" style="display:inline;">
                                 <input type="hidden" name="cancel_order_id" value="<?= $order['id'] ?>">

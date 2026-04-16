@@ -427,11 +427,10 @@ $orders = $stmt->fetchAll();
                         <div class="action-buttons">
                             <a href="order_details.php?id=<?= $order['id'] ?>" class="btn-view">View Details</a>
                             
-                            <?php if ($order['status'] === 'Pending'): ?>
-                                <form method="POST" action="cancel_order.php" style="display: inline;" 
-                                      onsubmit="return confirm('Cancel this order? This cannot be undone.');">
-                                    <input type="hidden" name="order_id" value="<?= $order['id'] ?>">
-                                    <button type="submit" class="btn-cancel">Cancel Order</button>
+                            <?php if ($order['status'] === 'Pending' || $order['status'] === 'Completed' || $order['status'] === 'Paid'): ?>
+                                <form action="cancel_order.php" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to cancel this order? This cannot be undone.');">
+                                    <input type="hidden" name="order_id" value="<?= htmlspecialchars($order['id']) ?>">
+                                    <button type="submit" class="btn-cancel">❌ Cancel Order</button>
                                 </form>
                             <?php endif; ?>
                         </div>

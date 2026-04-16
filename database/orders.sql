@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 09, 2026 at 08:50 AM
+-- Generation Time: Apr 16, 2026 at 09:20 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -33,7 +33,10 @@ CREATE TABLE `orders` (
   `total_amount` decimal(10,2) NOT NULL,
   `shipping_address` text NOT NULL,
   `order_date` datetime DEFAULT current_timestamp(),
-  `status` enum('Pending','Processing','Shipped','Delivered','Cancelled') DEFAULT 'Pending'
+  `status` enum('Pending','Paid','Processing','Shipped','Delivered','Cancelled') DEFAULT 'Pending',
+  `payment_method` varchar(50) DEFAULT 'PayPal',
+  `paypal_order_id` varchar(100) DEFAULT NULL,
+  `paypal_capture_id` varchar(100) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --

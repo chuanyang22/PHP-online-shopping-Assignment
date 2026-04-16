@@ -71,7 +71,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'complete_payment') {
             
             <div id="paypal-button-container"></div>
 
-            <script src="https://www.paypal.com/sdk/js?client-id=AUs-N0E4V8HRGsAx54opyGxI2UXVk2npBD7c2ArivbMkaTdIPhls9vHk6A_I8ikJNAWpv05tQ7OqS1skE&currency=MYR&disable-funding=card"></script>
+            <script src="https://www.paypal.com/sdk/js?client-id=AUs-N0E4V8HRGsAx54opyGxI2UXVk2npBD7c2ArivbMkaTdIPhls9vHk6A_I8ikJNAWpv05tQ7OqS1skE&currency=USD"></script>
             <script>
                 paypal.Buttons({
                     createOrder: function(data, actions) {

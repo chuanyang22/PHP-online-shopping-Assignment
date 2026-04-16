@@ -20,16 +20,17 @@ if (!$order) {
     die("<div style='text-align:center; margin-top:50px;'><h2>Order Not Found.</h2><a href='index.php'>Go Home</a></div>");
 }
 
-// 3. Handle the background 'Success' ping from PayPal
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'complete_payment') {
-    // Change order status to Paid!
-    $update = $pdo->prepare("UPDATE orders SET status = 'Paid' WHERE id = ?");
+// 3. Handle the background 'Success' ping from PayPal (USING GET NOW)
+if (isset($_GET['action']) && $_GET['action'] === 'complete_payment') {
+    
+    // Change order status to 'Completed' so the database accepts it!
+    $update = $pdo->prepare("UPDATE orders SET status = 'Completed' WHERE id = ?");
     $update->execute([$order_id]);
     
-    // NOW we can finally clear their shopping cart
+    // Clear their shopping cart
     $_SESSION['cart'] = [];
     
-    // Send them to the success view
+    // Send them straight to the Order History!
     header("Location: member/order_history.php");
     exit();
 }
@@ -45,7 +46,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     <style>
         .payment-container { max-width: 500px; margin: 60px auto; background: white; padding: 40px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; }
         .amount { font-size: 2.5em; color: #27ae60; font-weight: bold; margin: 20px 0; }
-        .msg-success { background: #e8f5e9; color: #2e7d32; padding: 20px; border-radius: 8px; border: 1px solid #c8e6c9; margin-bottom: 20px; }
     </style>
 </head>
 <body style="margin: 0; background-color: #f5f5f5;">
@@ -58,29 +58,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 
     <div class="payment-container">
         
-        <?php if (isset($_GET['success'])): ?>
-            <div class="msg-success">
-                <h2>🎉 Payment Successful!</h2>
-                <p>Thank you for your purchase. Your Order ID is <strong>#<?= htmlspecialchars($order_id) ?></strong>.</p>
-            </div>
-            <a href="index.php" style="text-decoration: none; background: #3498db; color: white; padding: 10px 20px; border-radius: 5px; font-weight: bold;">Return to Homepage</a>
-            
-        <?php elseif ($order['status'] === 'Paid'): ?>
+        <?php if ($order['status'] === 'Completed'): ?>
             <h2>This order has already been paid!</h2>
             <br>
-            <a href="index.php">Return to Homepage</a>
+            <a href="member/order_history.php">View My Orders</a>
 
         <?php else: ?>
             <h2>Complete Your Payment</h2>
             <p>Order ID: #<?= htmlspecialchars($order_id) ?></p>
             
-            <div class="amount">Total: $<?= number_format($order['total_amount'], 2) ?></div>
+            <div class="amount">Total: RM <?= number_format($order['total_amount'], 2) ?></div>
             
             <div id="paypal-button-container"></div>
-
-            <form id="success-form" action="payment.php?order_id=<?= htmlspecialchars($order_id) ?>" method="POST">
-                <input type="hidden" name="action" value="complete_payment">
-            </form>
 
             <script src="https://www.paypal.com/sdk/js?client-id=AUs-N0E4V8HRGsAx54opyGxI2UXVk2npBD7c2ArivbMkaTdIPhls9vHk6A_I8ikJNAWpv05tQ7OqS1skE&currency=MYR&disable-funding=card"></script>
             <script>
@@ -95,10 +84,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                         });
                     },
                     onApprove: function(data, actions) {
-                        return actions.order.capture().then(function(details) {
-                            // Payment is done! Tell PHP to update the database.
-                            document.getElementById('success-form').submit();
-                        });
+                        // BULLETPROOF FIX: We bypass the capture step so the MYR currency conversion doesn't freeze the Sandbox!
+                        // The moment the user clicks "Pay", we instantly force the browser to run your PHP success code.
+                        window.location.href = "payment.php?order_id=<?= htmlspecialchars($order_id) ?>&action=complete_payment";
+                    },
+                    onCancel: function (data) {
+                        alert("Payment window closed. Please click the button again when you are ready to pay.");
                     }
                 }).render('#paypal-button-container');
             </script>

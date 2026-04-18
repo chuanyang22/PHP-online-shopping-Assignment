@@ -1,6 +1,5 @@
-<?php 
-// This loads your database, session, and navbar
-include 'header.php'; 
+<?php
+include 'header.php'; // loads session, db, $lang, navbar
 
 // --- SEARCH & PRODUCT FETCHING LOGIC ---
 $search_keyword = '';
@@ -14,75 +13,86 @@ if (isset($_GET['search']) && trim($_GET['search']) !== '') {
 }
 
 $stmt = $pdo->prepare($query);
-
 if ($search_keyword !== '') {
     $stmt->execute(['search' => "%$search_keyword%"]);
 } else {
     $stmt->execute();
 }
-
 $products = $stmt->fetchAll();
 ?>
 
 <div class="home-container">
-    <h2 class="home-title">Welcome to the Store!</h2>
-    
+    <h2 class="home-title"><?= $lang['welcome'] ?></h2>
+
+    <!-- Search Bar -->
     <form method="GET" action="index.php" class="search-bar">
-        <input type="text" name="search" class="search-input" placeholder="Search for products..." value="<?= htmlspecialchars($search_keyword) ?>">
-        <button type="submit" class="btn">Search</button>
-        <?php if($search_keyword !== ''): ?>
-            <a href="index.php" class="btn-clear">Clear</a>
+        <input type="text" name="search" class="search-input"
+               placeholder="<?= htmlspecialchars($lang['search_placeholder']) ?>"
+               value="<?= htmlspecialchars($search_keyword) ?>">
+        <button type="submit" class="btn"><?= $lang['search_btn'] ?></button>
+        <?php if ($search_keyword !== ''): ?>
+            <a href="index.php" class="btn-clear"><?= $lang['clear_btn'] ?></a>
         <?php endif; ?>
     </form>
 
-    <?php if(count($products) > 0): ?>
+    <?php if (count($products) > 0): ?>
         <div class="product-grid">
-            <?php foreach($products as $product): ?>
+            <?php foreach ($products as $product): ?>
                 <div class="product-card">
-                     <?php $imagePath = !empty($product['image_name']) ? 'uploads/' . htmlspecialchars($product['image_name']) : 'uploads/default.png'; ?>
+                    <?php $imagePath = !empty($product['image_name'])
+                        ? 'uploads/' . htmlspecialchars($product['image_name'])
+                        : 'uploads/default.png'; ?>
                     <img src="<?= $imagePath ?>" class="product-image" alt="<?= htmlspecialchars($product['name']) ?>">
-    
+
                     <h3><?= htmlspecialchars($product['name']) ?></h3>
                     <p class="product-category"><?= htmlspecialchars($product['category_name']) ?></p>
-                    <p class="price">$<?= number_format($product['price'], 2) ?></p>
+                    <p class="price">RM <?= number_format($product['price'], 2) ?></p>
 
-                 <div class="product-actions">
-        
-                    <a href="product_detail.php?id=<?= $product['id'] ?>" class="btn btn-view">View Details</a>
+                    <div class="product-actions">
 
-                    <div class="action-row">
-            
-                        <?php if (isset($_SESSION['user_id'])): ?>
-                            <form action="cart.php" method="POST">
+                        <!-- View Details -->
+                        <a href="product_detail.php?id=<?= $product['id'] ?>" class="btn btn-view">
+                            <?= $lang['view_details'] ?>
+                        </a>
+
+                        <div class="action-row">
+
+                            <!-- Add to Cart -->
+                            <?php if (isset($_SESSION['user_id'])): ?>
+                                <form action="cart.php" method="POST">
+                                    <input type="hidden" name="product_id" value="<?= $product['id'] ?>">
+                                    <input type="hidden" name="action" value="add">
+                                    <input type="hidden" name="quantity" value="1">
+                                    <button type="submit" class="btn btn-add-cart">
+                                        <?= $lang['add_to_cart'] ?>
+                                    </button>
+                                </form>
+                            <?php else: ?>
+                                <div>
+                                    <button type="button" class="btn btn-add-cart"
+                                            onclick="window.location.href='login.php';">
+                                        <?= $lang['add_to_cart'] ?>
+                                    </button>
+                                </div>
+                            <?php endif; ?>
+
+                            <!-- Wishlist -->
+                            <form action="wishlist_action.php" method="POST">
                                 <input type="hidden" name="product_id" value="<?= $product['id'] ?>">
                                 <input type="hidden" name="action" value="add">
-                                <input type="hidden" name="quantity" value="1">
-                                <button type="submit" class="btn btn-add-cart">🛒 Add</button>
+                                <button type="submit" class="btn btn-wishlist">
+                                    <?= $lang['save_wishlist'] ?>
+                                </button>
                             </form>
-                        <?php else: ?>
-                    <div>
-                        <button type="button" class="btn btn-add-cart" onclick="window.location.href='login.php';">🛒 Add</button>
-                    </div>
-                <?php endif; ?>
 
-                <form action="wishlist_action.php" method="POST">
-                    <input type="hidden" name="product_id" value="<?= $product['id'] ?>">
-                    <input type="hidden" name="action" value="add">
-                    <button type="submit" class="btn btn-wishlist">❤️ Save</button>
-                </form>
-
-         </div>
-                </div>  
+                        </div><!-- /.action-row -->
+                    </div><!-- /.product-actions -->
+                </div><!-- /.product-card -->
             <?php endforeach; ?>
-        </div>
+        </div><!-- /.product-grid -->
     <?php else: ?>
-        <p>No products found matching your search.</p>
+        <p><?= $lang['no_products'] ?></p>
     <?php endif; ?>
-</div>
+</div><!-- /.home-container -->
 
-<?php 
-// If you have a footer, include it here:
-if(file_exists('footer.php')){
-    include 'footer.php'; 
-}
-?>
+<?php if (file_exists('footer.php')) include 'footer.php'; ?>

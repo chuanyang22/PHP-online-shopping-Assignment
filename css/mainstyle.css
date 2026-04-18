@@ -1,3 +1,25 @@
+/* =========================================================================
+   THEME VARIABLES (LIGHT & DARK MODE)
+   ========================================================================= */
+/* LIGHT MODE (Default) */
+:root {
+    --bg-main: #f4f7f6;
+    --bg-card: #ffffff;
+    --text-main: #333333;
+    --text-muted: #7f8c8d;
+    --border-color: #e5e7eb;
+}
+
+/* DARK MODE */
+body.dark-mode {
+    --bg-main: #121212;
+    --bg-card: #1e1e1e;
+    --text-main: #f4f7f6;
+    --text-muted: #aaaaaa;
+    --border-color: #333333;
+}
+
+
 /* =========================================
    PART 1: GENERAL RESET & MAIN LAYOUT
    ========================================= */
@@ -1440,3 +1462,170 @@ body {
 
 .btn-clear { background-color: #e74c3c; color: white; padding: 12px 20px; text-decoration: none; border-radius: 8px;}
 .btn-clear:hover { background-color: #c0392b; }
+
+
+/* Apply base transitions */
+body {
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+
+/* =========================================================================
+   NAVBAR CONTROLS & FOOTER MAP
+   ========================================================================= */
+/* Language & Theme Controls */
+.nav-controls-form {
+    display: inline-block;
+    margin-right: 15px;
+}
+
+.lang-select {
+    padding: 5px 10px;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-card);
+    color: var(--text-main);
+    cursor: pointer;
+}
+
+.btn-theme {
+    padding: 6px 12px;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-card);
+    color: var(--text-main);
+    cursor: pointer;
+    font-weight: bold;
+}
+
+/* Footer Map Layout */
+.main-footer {
+    margin-top: 50px;
+    padding: 20px;
+    background-color: var(--bg-card);
+    border-top: 1px solid var(--border-color);
+}
+
+.footer-content {
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.map-container {
+    overflow: hidden;
+    border-radius: 8px;
+    margin-top: 15px;
+}
+
+.map-iframe {
+    width: 100%;
+    height: 300px;
+    border: 0;
+}
+
+.footer-copyright {
+    margin-top: 15px;
+    color: var(--text-muted);
+}
+
+/* Fix main background */
+body, .home-body {
+    background-color: var(--bg-main);
+    color: var(--text-main);
+}
+
+/* Fix product cards to be dark */
+.product-card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+}
+
+/* Fix invisible product text */
+.product-title {
+    color: var(--text-main); /* This replaces the hardcoded #333 */
+}
+
+/* Styles for the new Nav elements */
+.lang-links a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-weight: normal;
+    padding: 0 5px;
+}
+.lang-links a.active-lang {
+    color: var(--text-main);
+    font-weight: bold;
+    text-decoration: underline;
+}
+.btn-theme-nav {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2em;
+    padding: 0 5px;
+    color: var(--text-main);
+}
+
+/* =========================================================================
+   CART & CHECKOUT STYLES
+   ========================================================================= */
+
+/* Cart Specific Elements */
+.qty-input {
+    width: 50px; 
+    padding: 5px;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-card);
+    color: var(--text-main);
+    border-radius: 4px;
+}
+
+.form-inline {
+    display: inline;
+}
+
+/* Checkout Container */
+.checkout-container {
+    max-width: 600px; 
+    margin: 50px auto; 
+    padding: 20px; 
+    background-color: var(--bg-card); 
+    border-radius: 8px; 
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    border: 1px solid var(--border-color);
+}
+
+.text-center {
+    text-align: center;
+}
+
+.error-msg {
+    color: #e74c3c; 
+    margin-bottom: 15px; 
+    text-align: center;
+    font-weight: bold;
+}
+
+.form-label {
+    display: block; 
+    margin-bottom: 5px; 
+    font-weight: bold;
+}
+
+.address-textarea {
+    width: 100%; 
+    padding: 10px; 
+    margin-bottom: 20px; 
+    border: 1px solid var(--border-color); 
+    border-radius: 5px;
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    box-sizing: border-box; /* Ensures padding doesn't stretch the box */
+}
+
+.mt-20 {
+    margin-top: 20px;
+}

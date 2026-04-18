@@ -84,4 +84,21 @@ $lang = [
     'email'             => 'Email Address',
     'save_changes'      => 'SAVE CHANGES',
     'cancel'            => 'Cancel',
+
+    'my_purchases' => 'My Purchases',
+    'order_no' => 'Order #',
+    'date' => 'Date',
+    'status' => 'Status',
+    'items' => 'Items',
+    'cancel_order' => 'Cancel Order',
+    'start_shopping' => 'Start Shopping',
+    'order_details' => 'Order Details',
+    'total_amount' => 'Total Amount',
+    'qty' => 'Qty',
+    'add_to_wishlist' => 'Add to Wishlist',
+    'saved_wishlist' => 'Saved to Wishlist',
+    'my_wishlist' => 'My Wishlist',
+    'remove_from_wishlist' => 'Remove from Wishlist',
+    'empty_wishlist' => 'Your wishlist is currently empty!',
+    'go_find_stuff' => 'Go find some cool stuff.'
 ];

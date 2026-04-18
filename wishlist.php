@@ -3,6 +3,12 @@ session_start();
 require_once 'lib/db.php';
 require_once 'lib/helpers.php';
 
+// Include language support
+$current_lang = $_SESSION['lang'] ?? 'en';
+if (file_exists(__DIR__ . "/lang/{$current_lang}.php")) {
+    require_once __DIR__ . "/lang/{$current_lang}.php";
+}
+
 // Kick them out if they aren't logged in
 if (!isset($_SESSION['user_id'])) {
     die("You must be logged in to view your wishlist. <a href='login.php'>Click here to login.</a>");
@@ -20,52 +26,13 @@ $stmt->execute([$user_id]);
 $wishlist_items = $stmt->fetchAll();
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Wishlist</title>
-    <link rel="stylesheet" href="css/mainstyle.css">
-</head>
-<body class="home-body">
-    <div class="navbar">
-        <div class="navbar-brand">
-            <a href="index.php">🛍️ Online Store</a>
-        </div>
-        
-        <div class="navbar-profile">
-            <a href="index.php">🏠 Home</a>
-            <span class="navbar-divider"></span>
+<?php include 'header.php'; ?>
 
-            <?php if(isset($_SESSION['username'])): ?>
-                <a href="cart.php">🛒 My Cart</a>
-                <span class="navbar-divider"></span>
-                
-                <a href="member/order_history.php">📜 My Orders</a>
-                <span class="navbar-divider"></span>
+    <div class="page-container">
+        <h2>❤️ <?= $lang['my_wishlist'] ?? 'My Wishlist' ?></h2>
 
-                <a href="wishlist.php">❤️ My Wishlist</a>
-                <span class="navbar-divider"></span>
-                
-                <a href="profile.php">🧏‍♂️ My Profile</a>
-                <span class="navbar-divider"></span>
-                
-                <a href="logout.php">Logout</a>
-            <?php else: ?>
-                <a href="register.php">Sign Up</a>
-                <span class="navbar-divider"></span>
-                <a href="login.php">Login</a>
-            <?php endif; ?>
-        </div>
-    </div><!-- /.navbar -->
-    
-    <div class="home-container">
-        <h2>Your Wishlist ❤️</h2>
-
-        <?php if(isset($_SESSION['popup'])): ?>
-            <div class="auth-success-box"><?= htmlspecialchars($_SESSION['popup']) ?></div>
-            <?php unset($_SESSION['popup']); ?>
+        <?php if (isset($_GET['msg'])): ?>
+            <p class="success-msg"><?= htmlspecialchars($_GET['msg']) ?></p>
         <?php endif; ?>
 
         <?php if(count($wishlist_items) > 0): ?>
@@ -75,23 +42,23 @@ $wishlist_items = $stmt->fetchAll();
                         <?php $imagePath = !empty($item['image_name']) ? 'uploads/' . htmlspecialchars($item['image_name']) : 'uploads/default.png'; ?>
                         <img src="<?= $imagePath ?>" class="product-image">
                         
-                        <h3><?= htmlspecialchars($item['name']) ?></h3>
-                        <p class="price">$<?= number_format($item['price'], 2) ?></p>
+                        <h3 class="product-title"><?= htmlspecialchars($item['name']) ?></h3>
+                        <p class="product-price">RM <?= number_format($item['price'], 2) ?></p>
                         
-                        <a href="product_detail.php?id=<?= $item['id'] ?>" class="btn btn-block-sm">View Details</a>
+                        <a href="product_detail.php?id=<?= $item['id'] ?>" class="btn-view"><?= $lang['view_details'] ?? 'View Details' ?></a>
                         
-                        <form action="wishlist_action.php" method="POST">
+                        <form action="wishlist_action.php" method="POST" style="margin-top: 10px;">
                             <input type="hidden" name="product_id" value="<?= $item['id'] ?>">
                             <input type="hidden" name="action" value="remove">
-                            <button type="submit" class="btn btn-remove btn-block-sm">Remove from Wishlist</button>
+                            <button type="submit" class="btn-remove"><?= $lang['remove_from_wishlist'] ?? 'Remove from Wishlist' ?></button>
                         </form>
                     </div>
                 <?php endforeach; ?>
             </div>
         <?php else: ?>
-            <p>Your wishlist is currently empty! <a href="index.php" class="link-primary">Go find some cool stuff.</a></p>
+            <p><?= $lang['empty_wishlist'] ?? 'Your wishlist is currently empty!' ?> <a href="index.php" class="link-primary"><?= $lang['go_find_stuff'] ?? 'Go find some cool stuff.' ?></a></p>
         <?php endif; ?>
 
     </div>
-</body>
-</html>
+
+<?php include 'footer.php'; ?>

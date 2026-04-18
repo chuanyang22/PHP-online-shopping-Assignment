@@ -1,7 +1,13 @@
 <?php
-// product_detail.php - NO PHP LOGIC CHANGED
+// product_detail.php
 session_start(); 
 require_once 'lib/db.php';
+
+// Include language support
+$current_lang = $_SESSION['lang'] ?? 'en';
+if (file_exists(__DIR__ . "/lang/{$current_lang}.php")) {
+    require_once __DIR__ . "/lang/{$current_lang}.php";
+}
 
 if (!isset($_GET['id'])) {
     die("Error: Product ID is missing.");
@@ -26,7 +32,7 @@ try {
     $product = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$product) {
-        die("Error: Product not found in our database.");
+        die("<h2 style='text-align:center; color: var(--text-main); margin-top:50px;'>Error: Product not found.</h2>");
     }
 } catch (PDOException $e) {
     die("Database error: " . $e->getMessage());
@@ -36,60 +42,55 @@ try {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo htmlspecialchars($product['name']); ?> - Details</title>
-    <link rel="stylesheet" href="css/mainstyle.css"> 
+    <title><?= htmlspecialchars($product['name']) ?></title>
+    <link rel="stylesheet" href="css/mainstyle.css">
 </head>
-<body class="detail-page-body">
+<body class="home-body">
+    <?php include 'header.php'; ?>
+    
+    <div class="page-container">
+        <h2><?= htmlspecialchars($product['name']) ?></h2>
+        
+        <?php 
+            $img_path = (!empty($product['image_name']) && file_exists('uploads/' . $product['image_name'])) 
+                ? 'uploads/' . $product['image_name'] 
+                : 'uploads/default.png';
+        ?>
+        <img src="<?= $img_path ?>" alt="<?= htmlspecialchars($product['name']) ?>" class="product-img-large">
+        
+        <p><strong><?= $lang['category'] ?? 'Category' ?>:</strong> <?= htmlspecialchars($product['category_name'] ?? 'Uncategorized') ?></p>
+        <p class="product-price">RM <?= number_format($product['price'], 2) ?></p>
+        <p><?= nl2br(htmlspecialchars($product['description'])) ?></p>
 
-<div class="detail-card">
-    <img src="uploads/<?php echo htmlspecialchars($product['image_name']); ?>" alt="<?php echo htmlspecialchars($product['name']); ?>" style="width: 100%; max-height: 300px; object-fit: contain; border-radius: 10px; margin-bottom: 20px;">
-    
-    <h1 class="text-blue-title mt-0"><?php echo htmlspecialchars($product['name']); ?></h1>
-    <div class="detail-category mb-10 text-gray">Category: <?php echo htmlspecialchars($product['category_name'] ?? 'Uncategorized'); ?></div>
-    <div class="detail-price font-bold text-green font-size-1-2 mb-10">RM <?php echo number_format($product['price'], 2); ?></div>
-    
-    <div class="detail-stock mb-20">
-        <?php if ($product['stock_quantity'] > 0): ?>
-            ✅ In Stock: <?php echo $product['stock_quantity']; ?>
+        <form action="cart.php" method="POST" class="detail-form mb-20">
+            <input type="hidden" name="product_id" value="<?= $product['id'] ?>">
+            <input type="hidden" name="action" value="add">
+            
+            <label for="quantity" class="qty-label font-bold mr-15"><?= $lang['qty'] ?? 'Qty' ?>:</label>
+            <input type="number" name="quantity" id="quantity" value="1" min="1" max="<?= $product['stock_quantity'] ?>" class="qty-input-small inline-block">
+            <br><br>
+            
+            <?php if ($product['stock_quantity'] > 0): ?>
+                <button type="submit" class="btn btn-add-to-cart btn-success-solid"><?= $lang['add_to_cart'] ?? 'Add to Cart' ?></button>
+            <?php else: ?>
+                <button type="button" class="btn btn-disabled" disabled><?= $lang['out_of_stock'] ?? 'Out of Stock' ?></button>
+            <?php endif; ?>
+        </form>
+
+        <?php if ($in_wishlist): ?>
+            <p class="wishlist-saved-msg text-danger-link mt-15">❤️ <?= $lang['saved_wishlist'] ?? 'Saved to Wishlist' ?></p>
         <?php else: ?>
-            ❌ Out of Stock
+            <form action="wishlist_action.php" method="POST" class="detail-form">
+                <input type="hidden" name="product_id" value="<?= $product['id'] ?>">
+                <input type="hidden" name="action" value="add">
+                <button type="submit" class="btn btn-wishlist text-danger-link mt-15">🤍 <?= $lang['add_to_wishlist'] ?? 'Add to Wishlist' ?></button>
+            </form>
         <?php endif; ?>
+        
+        <br><br>
+        <a href="index.php" class="btn-back">← <?= $lang['start_shopping'] ?? 'Back to Shop' ?></a>
     </div>
 
-    <?php if (isset($cart_qty) && $cart_qty > 0): ?>
-        <div class="cart-alert mb-20 msg-success">
-            🛒 You have <?php echo $cart_qty; ?> of this in your cart.
-        </div>
-    <?php endif; ?>
-
-    <form action="cart.php" method="POST" class="detail-form mb-20">
-        <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
-        <input type="hidden" name="action" value="add">
-        
-        <label for="quantity" class="qty-label font-bold mr-15">Qty:</label>
-        <input type="number" name="quantity" id="quantity" value="1" min="1" max="<?php echo $product['stock_quantity']; ?>" class="admin-input-full inline-block" style="width: 60px;">
-        <br><br>
-        
-        <?php if ($product['stock_quantity'] > 0): ?>
-            <button type="submit" class="btn btn-add-to-cart btn-success-solid">Add to Cart</button>
-        <?php else: ?>
-            <button type="button" class="btn btn-out-of-stock" disabled style="background:#ccc; cursor:not-allowed;">Out of Stock</button>
-        <?php endif; ?>
-    </form>
-
-    <?php if ($in_wishlist): ?>
-        <p class="wishlist-saved-msg text-danger-link mt-15">❤️ Saved to Wishlist</p>
-    <?php else: ?>
-        <form action="wishlist_action.php" method="POST" class="detail-form">
-            <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
-            <input type="hidden" name="action" value="add">
-            <button type="submit" class="btn-detail-wishlist btn-primary-sm">❤️ Save to Wishlist</button>
-        </form>
-    <?php endif; ?>
-
-    <a href="index.php" class="detail-back-link text-blue-link mt-25 inline-block">⬅ Back to Store</a>
-</div>
-
+    <?php include 'footer.php'; ?>
 </body>
 </html>

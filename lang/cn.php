@@ -84,4 +84,22 @@ $lang = [
     'email'             => '电子邮件地址',
     'save_changes'      => '保存更改',
     'cancel'            => '取消',
+
+
+    'my_purchases' => '我的购买',
+    'order_no' => '订单号 #',
+    'date' => '日期',
+    'status' => '状态',
+    'items' => '商品',
+    'cancel_order' => '取消订单',
+    'start_shopping' => '开始购物',
+    'order_details' => '订单详情',
+    'total_amount' => '总金额',
+    'qty' => '数量',
+    'add_to_wishlist' => '加入心愿单',
+    'saved_wishlist' => '已保存至心愿单',
+    'my_wishlist' => '我的心愿单',
+    'remove_from_wishlist' => '从心愿单移除',
+    'empty_wishlist' => '您的心愿单目前是空的！',
+    'go_find_stuff' => '去发现一些好东西吧。'
 ];

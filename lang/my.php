@@ -84,4 +84,22 @@ $lang = [
     'email'             => 'Alamat Emel',
     'save_changes'      => 'SIMPAN PERUBAHAN',
     'cancel'            => 'Batal',
+
+
+    'my_purchases' => 'Pembelian Saya',
+    'order_no' => 'Pesanan #',
+    'date' => 'Tarikh',
+    'status' => 'Status',
+    'items' => 'Barangan',
+    'cancel_order' => 'Batal Pesanan',
+    'start_shopping' => 'Mula Membeli-belah',
+    'order_details' => 'Butiran Pesanan',
+    'total_amount' => 'Jumlah Keseluruhan',
+    'qty' => 'Kuantiti',
+    'add_to_wishlist' => 'Tambah ke Senarai Hajat',
+    'saved_wishlist' => 'Disimpan di Senarai Hajat',
+    'my_wishlist' => 'Senarai Hajat Saya',
+    'remove_from_wishlist' => 'Buang dari Senarai Hajat',
+    'empty_wishlist' => 'Senarai hajat anda kosong!',
+    'go_find_stuff' => 'Pergi cari barang menarik.'
 ];

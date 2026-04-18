@@ -1629,3 +1629,94 @@ body, .home-body {
 .mt-20 {
     margin-top: 20px;
 }
+/* =========================================================================
+   TABLE TEXT FIX (For Cart in Dark Mode)
+   ========================================================================= */
+table, th, td, .cart-table th, .cart-table td {
+    color: var(--text-main);
+}
+
+/* =========================================================================
+   ORDER HISTORY & DETAILS STYLES (Extracted from internal styles)
+   ========================================================================= */
+.order-container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 0 20px;
+    color: var(--text-main);
+}
+
+.order-card {
+    background: var(--bg-card);
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border: 1px solid var(--border-color);
+}
+
+.order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 15px;
+    margin-bottom: 15px;
+}
+
+.order-status {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.9em;
+    font-weight: bold;
+}
+
+.status-pending { background: #fff3cd; color: #856404; }
+.status-paid { background: #cce5ff; color: #004085; }
+.status-shipped { background: #d4edda; color: #155724; }
+.status-delivered { background: #d1ecf1; color: #0c5460; }
+.status-cancelled { background: #f8d7da; color: #721c24; }
+
+.order-body { display: grid; gap: 10px; color: var(--text-muted); }
+.order-total { margin-top: 15px; font-weight: bold; font-size: 1.1em; color: var(--text-main); }
+.action-buttons { margin-top: 15px; display: flex; gap: 10px; }
+.empty-state { text-align: center; padding: 50px 20px; background: var(--bg-card); border-radius: 8px; border: 1px solid var(--border-color); color: var(--text-main); }
+
+/* Order Details Specific */
+.item-card { display: flex; align-items: center; padding: 15px; border-bottom: 1px solid var(--border-color); gap: 15px; background: var(--bg-card); }
+.item-image img { width: 80px; height: 80px; object-fit: cover; border-radius: 4px; }
+.item-details { flex: 1; }
+.item-name { font-weight: bold; margin-bottom: 5px; color: var(--text-main); }
+.item-price { color: #e53e3e; font-weight: bold; }
+.total-card, .cancel-card { background: var(--bg-card); border-radius: 8px; padding: 20px; margin-top: 20px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border-color); }
+.total-label { font-size: 1.2em; font-weight: bold; color: var(--text-main); }
+.total-amount { font-size: 1.5em; font-weight: bold; color: #e53e3e; }
+
+/* Buttons & Inputs */
+.btn-disabled { background-color: var(--border-color); color: var(--text-muted); cursor: not-allowed; border: none; padding: 10px 15px; border-radius: 5px; }
+.qty-input-small { width: 60px; padding: 5px; border-radius: 4px; border: 1px solid var(--border-color); background: var(--bg-main); color: var(--text-main); }
+
+
+/* =========================================================================
+   DARK MODE OVERRIDES FOR CONTAINERS & CARDS
+   ========================================================================= */
+.page-container {
+    background-color: var(--bg-card) !important;
+    color: var(--text-main) !important;
+    border: 1px solid var(--border-color);
+}
+
+.product-card {
+    background-color: var(--bg-card) !important;
+    color: var(--text-main) !important;
+    border: 1px solid var(--border-color);
+}
+
+/* Force titles and text inside these containers to change color */
+.product-title, 
+.product-price, 
+.page-container h2, 
+.page-container h3,
+.page-container p {
+    color: var(--text-main) !important;
+}

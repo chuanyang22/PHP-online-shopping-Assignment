@@ -28,8 +28,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $pdo->prepare("UPDATE member SET reset_token = ?, reset_expires = ? WHERE id = ?")
                 ->execute([$token, $expires, $user['id']]);
 
-            $protocol   = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http";
-            $reset_link = $protocol . "://" . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . "/reset_password.php?token=" . $token;
+            $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http";
+            $base_dir = str_replace("\\", "/", dirname($_SERVER['PHP_SELF']));
+            $base_dir = trim($base_dir, "/");
+            $base_url = $protocol . "://" . $_SERVER['HTTP_HOST'] . ($base_dir === "" || $base_dir === "." ? "" : "/" . $base_dir);
+            $reset_link = $base_url . "/reset_password.php?token=" . urlencode($token);
 
             $headline     = "Password Reset";
             $body_content = "

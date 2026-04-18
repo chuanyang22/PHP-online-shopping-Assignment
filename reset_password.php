@@ -95,9 +95,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $token_valid) {
 
         <?php if (!$token_valid && empty($success_msg)): ?>
             <div class="auth-footer-text">
-                <a href="login.php" class="link-primary">Back to Login</a>
+                <a href="login.php" class="auth-link">Please click here to log in.</a>
             </div>
         <?php endif; ?>
+
     </div>
+</div>
 </body>
 </html>

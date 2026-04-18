@@ -21,7 +21,6 @@ $stmt = $pdo->prepare("
 $stmt->execute([$order_id]);
 $order = $stmt->fetch();
 
-// Replaced inline styles with CSS classes
 if (!$order) {
     die("<div class='center-padding-50'><h2 class='text-blue-title'>Order not found.</h2><a href='order_list.php' class='btn-reset-gray'>← Back to Orders</a></div>");
 }
@@ -75,7 +74,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_status'])) {
 
             <div class="order-info-card">
                 <p><strong>Customer:</strong> <?= htmlspecialchars($order['username']) ?> (<?= htmlspecialchars($order['email']) ?>)</p>
-                <p class="mt-10"><strong>Date:</strong> <?= date('d M Y, h:i A', strtotime($order['created_at'])) ?></p>
+                
+                <p class="mt-10"><strong>Date:</strong> 
+                    <?php 
+                        // Check if created_at exists, if not try order_date, else show N/A
+                        $order_date = $order['created_at'] ?? $order['order_date'] ?? null;
+                        if ($order_date) {
+                            echo date('d M Y, h:i A', strtotime($order_date));
+                        } else {
+                            echo "Date not recorded";
+                        }
+                    ?>
+                </p>
+                
                 <p class="mt-10"><strong>Current Status:</strong> <span class="font-bold text-blue-title"><?= $order['status'] ?></span></p>
             </div>
 

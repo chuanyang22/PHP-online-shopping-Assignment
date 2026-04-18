@@ -3,6 +3,10 @@ require_once '../lib/auth.php';
 require_once '../lib/db.php';
 require_once '../lib/helpers.php';
 
+// Force Admin Auth
+auth('Admin');
+
+// Fetch Top 5 Selling Products
 $stmt = $pdo->query("
     SELECT p.name, SUM(oi.quantity) as total_sold 
     FROM order_items oi 
@@ -17,7 +21,7 @@ $labels = [];
 $values = [];
 foreach ($chart_data as $row) {
     $labels[] = $row['name'];
-    $values[] = $row['total_sold'];
+    $values[] = (int)$row['total_sold'];
 }
 ?>
 <!DOCTYPE html>
@@ -26,7 +30,7 @@ foreach ($chart_data as $row) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
-    <link rel="stylesheet" href="../css/mainstyle.css"
+    <link rel="stylesheet" href="../css/mainstyle.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="admin-body">
@@ -35,42 +39,56 @@ foreach ($chart_data as $row) {
     <?php require_once 'admin_sidebar.php'; ?>
 
     <main class="admin-main">
-        <div class="dashboard-chart-card">
+        <div class="dashboard-chart-card" style="background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
 
             <h2 class="dashboard-title mt-0 mb-20">📊 Dashboard — Top Selling Products</h2>
 
             <?php if (empty($labels)): ?>
-                <div class="empty-chart-state">
-                    <p class="empty-chart-text-1">No sales recorded yet.</p>
+                <div class="empty-chart-state" style="text-align: center; padding: 50px;">
+                    <p class="empty-chart-text-1" style="font-size: 1.2em; color: #666;">No sales recorded yet.</p>
                     <p class="empty-chart-text-2">Try placing an order as a member first!</p>
                 </div>
             <?php else: ?>
-                <canvas id="sellingChart" class="chart-canvas"></canvas>
+                <div style="position: relative; height:40vh; width:100%">
+                    <canvas id="sellingChart"></canvas>
+                </div>
             <?php endif; ?>
 
         </div>
     </main>
 
-</div><!-- /.admin-layout -->
+</div>
 
 <script>
-    <?php if (!empty($labels)): ?>
-    const ctx = document.getElementById('sellingChart').getContext('2d');
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: <?= json_encode($labels) ?>,
-            datasets: [{
-                label: 'Total Sold',
-                data: <?= json_encode($values) ?>,
-                backgroundColor: 'rgba(54, 162, 235, 0.6)',
-                borderColor:     'rgba(54, 162, 235, 1)',
-                borderWidth: 1
-            }]
-        },
-        options: { scales: { y: { beginAtZero: true } } }
+    // Wait for the page to load before drawing the chart
+    document.addEventListener('DOMContentLoaded', function() {
+        <?php if (!empty($labels)): ?>
+        const ctx = document.getElementById('sellingChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: <?= json_encode($labels) ?>,
+                datasets: [{
+                    label: 'Total Units Sold',
+                    data: <?= json_encode($values) ?>,
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: { 
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: { 
+                    y: { 
+                        beginAtZero: true,
+                        ticks: { stepSize: 1 } 
+                    } 
+                } 
+            }
+        });
+        <?php endif; ?>
     });
-    <?php endif; ?>
 </script>
 </body>
 </html>

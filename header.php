@@ -7,11 +7,7 @@ if (session_status() === PHP_SESSION_NONE) {
 // ROOT DETECTION — works whether included from root OR
 // from a subfolder like member/order_history.php
 // -------------------------------------------------------
-$depth = substr_count(
-    str_replace($_SERVER['DOCUMENT_ROOT'], '', __DIR__),
-    DIRECTORY_SEPARATOR
-);
-$root = str_repeat('../', $depth); // '' at root, '../' one level deep
+$root='/';
 
 // Language Logic
 if (isset($_GET['lang'])) {
@@ -20,7 +16,7 @@ if (isset($_GET['lang'])) {
 $current_lang = $_SESSION['lang'] ?? 'en';
 
 // Load language file relative to project root
-$project_root = rtrim(__DIR__ . str_repeat('/..', $depth), '/');
+$project_root = __DIR__;
 $lang_file = $project_root . "/lang/{$current_lang}.php";
 if (!file_exists($lang_file)) {
     $lang_file = $project_root . "/lang/en.php";

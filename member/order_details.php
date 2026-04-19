@@ -24,6 +24,10 @@ if (!$order) {
     die("<div class='text-center p-50'><h2 class='text-main'>Order not found.</h2><a href='order_history.php'>← Back to Orders</a></div>");
 }
 
+$order_status = order_status_normalized($order);
+$status_css = preg_replace('/[^a-z0-9_-]/i', '', strtolower($order_status));
+$fulfillment = order_fulfillment_progress($order_status);
+
 // Fetch order items
 $stmt = $pdo->prepare("
     SELECT oi.*, p.name, p.image_name 
@@ -54,16 +58,50 @@ $items = $stmt->fetchAll();
         </div>
 
         <div class="order-card">
-            <div class="order-header no-border m-0 p-0">
+            <div class="order-header no-border m-0 p-0 order-header-stacked">
                 <div>
                     <h2><?= $lang['order_details'] ?? 'Order Details' ?> #<?= htmlspecialchars($order['id']) ?></h2>
                     <div class="text-muted mt-5">
                         <?= date('d M Y, h:i A', strtotime($order['order_date'])) ?>
                     </div>
                 </div>
-                <div class="order-status status-<?= strtolower($order['status']) ?>">
-                    <?= htmlspecialchars($order['status']) ?>
+                <div class="order-status-banner status-<?= htmlspecialchars($status_css) ?>">
+                    <span class="order-status-banner__label"><?= htmlspecialchars($lang['status'] ?? 'Status') ?>:</span>
+                    <span class="order-status-banner__value"><?= htmlspecialchars($order_status) ?></span>
                 </div>
+                <?php if ($fulfillment >= 0): ?>
+                <?php
+                    $step_labels = [
+                        $lang['order_step_paid'] ?? 'Paid',
+                        $lang['order_step_shipped'] ?? 'Shipped',
+                        $lang['order_step_delivered'] ?? 'Delivered',
+                    ];
+                ?>
+                <div class="order-progress" aria-label="<?= htmlspecialchars($lang['order_progress_label'] ?? 'Order progress') ?>">
+                    <ol class="order-progress__steps">
+                        <?php for ($i = 0; $i < 3; $i++):
+                            $is_done = $fulfillment >= ($i + 1);
+                            $is_active = !$is_done && ($i === 0 || $fulfillment >= $i);
+                            $step_class = 'order-progress__step';
+                            if ($is_done) {
+                                $step_class .= ' is-done';
+                            }
+                            if ($is_active) {
+                                $step_class .= ' is-active';
+                            }
+                        ?>
+                        <li class="<?= $step_class ?>">
+                            <span class="order-progress__dot" aria-hidden="true"></span>
+                            <span class="order-progress__label"><?= htmlspecialchars($step_labels[$i]) ?></span>
+                        </li>
+                        <?php endfor; ?>
+                    </ol>
+                </div>
+                <?php else: ?>
+                <div class="order-status-banner status-cancelled order-progress-cancelled">
+                    <span class="order-status-banner__value"><?= htmlspecialchars($lang['order_cancelled_notice'] ?? 'This order was cancelled.') ?></span>
+                </div>
+                <?php endif; ?>
             </div>
         </div>
 
@@ -93,7 +131,7 @@ $items = $stmt->fetchAll();
             <div class="total-amount">RM <?= number_format($order['total_amount'], 2) ?></div>
         </div>
 
-        <?php if ($order['status'] === 'Pending'): ?>
+        <?php if (order_status_normalized($order) === 'Pending'): ?>
             <div class="cancel-card">
                 <form method="POST" action="cancel_order.php" 
                       onsubmit="return confirm('Are you sure you want to cancel this order? This cannot be undone.');">

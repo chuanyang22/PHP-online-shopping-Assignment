@@ -56,14 +56,27 @@ $orders = $stmt->fetchAll();
             $item_stmt->execute([$order['id']]);
             $items = $item_stmt->fetchAll();
             
-            // Set dynamic status colors based on class names
-            $status_class = '';
-            switch(strtolower($order['status'])) {
-                case 'completed': 
-                case 'delivered': $status_class = 'status-completed'; break;
-                case 'shipped':   $status_class = 'status-shipped'; break;
-                case 'cancelled': $status_class = 'status-cancelled'; break;
-                default:          $status_class = 'status-pending'; // Pending/Paid
+            $status_label = order_status_normalized($order);
+            $status_class = 'status-pending';
+            switch (strtolower($status_label)) {
+                case 'completed':
+                case 'delivered':
+                    $status_class = 'status-completed';
+                    break;
+                case 'shipped':
+                    $status_class = 'status-shipped';
+                    break;
+                case 'paid':
+                    $status_class = 'status-paid';
+                    break;
+                case 'processing':
+                    $status_class = 'status-processing';
+                    break;
+                case 'cancelled':
+                    $status_class = 'status-cancelled';
+                    break;
+                default:
+                    $status_class = 'status-pending';
             }
         ?>
             
@@ -76,9 +89,10 @@ $orders = $stmt->fetchAll();
                             <?= date('d M Y, h:i A', strtotime($order['order_date'])) ?>
                         </span>
                     </div>
-                    <div class="status-badge <?= $status_class ?>">
-                        <?= htmlspecialchars($order['status']) ?>
-                    </div>
+                </div>
+                <div class="order-status-strip">
+                    <span class="status-label"><?= htmlspecialchars($lang['status'] ?? 'Status') ?>:</span>
+                    <span class="status-badge <?= $status_class ?>"><?= htmlspecialchars($status_label) ?></span>
                 </div>
 
                 <div class="order-items">
@@ -115,7 +129,7 @@ $orders = $stmt->fetchAll();
                             <?= $lang['view_details'] ?? 'View Details' ?>
                         </a>
                         
-                        <?php if (in_array($order['status'], ['Pending', 'Completed', 'Paid'])): ?>
+                        <?php if (in_array(order_status_normalized($order), ['Pending', 'Paid'], true)): ?>
                             <form action="cancel_order.php" method="POST" style="margin: 0;" onsubmit="return confirm('<?= addslashes($lang['confirm_cancel'] ?? 'Are you sure you want to cancel this order? This cannot be undone.') ?>');">
                                 <input type="hidden" name="order_id" value="<?= htmlspecialchars($order['id']) ?>">
                                 <button type="submit" class="btn-cancel-order">

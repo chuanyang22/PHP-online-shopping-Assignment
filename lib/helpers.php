@@ -20,6 +20,47 @@ function display_error($errors, $field) {
     }
 }
 
+/**
+ * Reliable order status for display when DB value is missing/empty (invalid ENUM, etc.).
+ * PayPal checkout rows usually have paypal_order_id / paypal_capture_id set.
+ */
+function order_status_normalized(array $order) {
+    $raw = '';
+    if (isset($order['status'])) {
+        $raw = trim((string) $order['status']);
+    } elseif (isset($order['STATUS'])) {
+        $raw = trim((string) $order['STATUS']);
+    }
+    if ($raw !== '') {
+        if (strcasecmp($raw, 'Completed') === 0) {
+            return 'Delivered';
+        }
+        return $raw;
+    }
+    if (!empty($order['paypal_capture_id']) || !empty($order['paypal_order_id'])) {
+        return 'Paid';
+    }
+    return 'Pending';
+}
+
+/** Fulfillment progress for the member status bar: 0–3, or -1 if cancelled. */
+function order_fulfillment_progress($status) {
+    $s = strtolower(trim((string) $status));
+    if ($s === 'cancelled') {
+        return -1;
+    }
+    if (in_array($s, ['delivered', 'completed'], true)) {
+        return 3;
+    }
+    if ($s === 'shipped') {
+        return 2;
+    }
+    if (in_array($s, ['paid', 'processing'], true)) {
+        return 1;
+    }
+    return 0;
+}
+
 function auth($required_role = null) {
     // 1. First, check if they are logged in at all
     if (!isset($_SESSION['user_id'])) {

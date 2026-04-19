@@ -1748,9 +1748,97 @@ table, th, td, .cart-table th, .cart-table td {
 
 .status-pending { background: #fff3cd; color: #856404; }
 .status-paid { background: #cce5ff; color: #004085; }
+.status-processing { background: #e2e3e5; color: #383d41; }
 .status-shipped { background: #d4edda; color: #155724; }
 .status-delivered { background: #d1ecf1; color: #0c5460; }
 .status-cancelled { background: #f8d7da; color: #721c24; }
+.status-unknown { background: #ececec; color: #555; }
+
+/* Member order pages: status must stay visible (no flex shrink / clipping) */
+.order-header-stacked {
+    flex-direction: column;
+    align-items: stretch !important;
+    gap: 12px;
+}
+.order-status-banner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+}
+.order-status-banner__label { opacity: 0.92; }
+.order-status-banner__value { font-weight: 700; }
+
+/* Order details: Paid → Shipped → Delivered progress */
+.order-progress {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border-color);
+}
+.order-progress__steps {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    position: relative;
+    gap: 4px;
+}
+.order-progress__steps::before {
+    content: '';
+    position: absolute;
+    left: 12%;
+    right: 12%;
+    top: 11px;
+    height: 3px;
+    background: var(--border-color);
+    z-index: 0;
+}
+.order-progress__step {
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    text-align: center;
+    max-width: 33.33%;
+}
+.order-progress__dot {
+    display: block;
+    width: 22px;
+    height: 22px;
+    margin: 0 auto 8px;
+    border-radius: 50%;
+    background: var(--bg-main);
+    border: 3px solid var(--border-color);
+    box-sizing: border-box;
+}
+.order-progress__label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    line-height: 1.25;
+}
+.order-progress__step.is-done .order-progress__dot {
+    background: #00ab56;
+    border-color: #00ab56;
+}
+.order-progress__step.is-done .order-progress__label {
+    color: var(--text-main);
+}
+.order-progress__step.is-active .order-progress__dot {
+    border-color: #3498db;
+    background: #e3f2fd;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.25);
+}
+.order-progress__step.is-active .order-progress__label {
+    color: #2980b9;
+}
+.order-progress-cancelled {
+    margin-top: 12px;
+}
 
 .order-body { display: grid; gap: 10px; color: var(--text-muted); }
 .order-total { margin-top: 15px; font-weight: bold; font-size: 1.1em; color: var(--text-main); }
@@ -1998,11 +2086,30 @@ html[lang="cn"] .btn-checkout {
     font-weight: 500;
     padding: 4px 10px;
     border-radius: 4px;
+    flex-shrink: 0;
 }
 .status-completed { color: #00ab56; background: #e8f5e9; }
 .status-shipped   { color: #3498db; background: #e3f2fd; }
 .status-cancelled { color: #e74c3c; background: #fef2f2; }
 .status-pending   { color: #f39c12; background: #fff8e1; }
+.status-paid      { color: #004085; background: #cce5ff; }
+.status-processing { color: #383d41; background: #e2e3e5; }
+.status-unknown   { color: #555; background: #ececec; }
+
+.order-status-strip {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 10px 16px 12px;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-main);
+}
+.order-status-strip .status-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+}
 
 /* Order Items List */
 .order-items {

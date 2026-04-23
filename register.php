@@ -2,12 +2,18 @@
 require_once 'lib/db.php';
 require_once 'lib/helpers.php';
 
-$errors      = [];
-$success_msg = '';  
+// Load language file
+$locale = $_SESSION['lang'] ?? 'en';
+$allowed_locales = ['en', 'my', 'cn'];
+if (!in_array($locale, $allowed_locales)) $locale = 'en';
+require_once "lang/{$locale}.php";
 
-// NEW: Catch the success message after the page refreshes!
+$errors      = [];
+$success_msg = '';
+
+// Catch the success message after the page refreshes
 if (isset($_GET['success']) && $_GET['success'] == 1) {
-    $success_msg = "Congratulations, you have successfully registered! <br><a href='login.php' class='auth-link-bold'>Click here to Log In</a>";
+    $success_msg = $lang['reg_success'] . " <br><a href='login.php' class='auth-link-bold'>" . $lang['reg_click_login'] . "</a>";
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -19,50 +25,50 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Username validation
     if (empty($username)) {
-        $errors['username'] = "Username is required.";
+        $errors['username'] = $lang['err_username_required'];
     } else if (strlen($username) < 2 || strlen($username) > 20) {
-        $errors['username'] = "Bro, username must be between 2 to 20 characters lah.";
+        $errors['username'] = $lang['err_username_length'];
     }
 
     // Email validation
     if (empty($email)) {
-        $errors['email'] = "Email is required.";
+        $errors['email'] = $lang['err_email_required'];
     } else if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $errors['email'] = "Aiyoh use correct email format lah...";
+        $errors['email'] = $lang['err_email_invalid'];
     }
 
     // Password validation
     if (empty($password)) {
-        $errors['password'] = "Password is required.";
+        $errors['password'] = $lang['err_password_required'];
     } else if (strlen($password) < 8) {
-        $errors['password'] = "Password must be at least 8 characters lah, safety mah.";
+        $errors['password'] = $lang['err_password_length'];
     }
 
     // Confirm password validation
     if ($password !== $confirm_password) {
-        $errors['confirm_password'] = "Aiyoh, copy your password also can mismatch....";
+        $errors['confirm_password'] = $lang['err_password_mismatch'];
     }
 
     // Check if email already exists
     if (empty($errors)) {
-        $stmt = $pdo->prepare("SELECT id FROM member WHERE email = ?");  
-        $stmt->execute([$email]);  
+        $stmt = $pdo->prepare("SELECT id FROM member WHERE email = ?");
+        $stmt->execute([$email]);
         if ($stmt->rowCount() > 0) {
-            $errors['email'] = "This email is already registered.";  
+            $errors['email'] = $lang['err_email_taken'];
         }
     }
 
     // Insert new member
     if (empty($errors)) {
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-        $role            = 'Member';  
+        $role            = 'Member';
 
-        $sql  = "INSERT INTO member (username, email, password, role) VALUES (?, ?, ?, ?)";  
-        $stmt = $pdo->prepare($sql);  
+        $sql  = "INSERT INTO member (username, email, password, role) VALUES (?, ?, ?, ?)";
+        $stmt = $pdo->prepare($sql);
 
         try {
             $stmt->execute([$username, $email, $hashed_password, $role]);
-            
+
             // Redirect to show the success message
             header("Location: register.php?success=1");
             exit;
@@ -75,15 +81,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?= htmlspecialchars($locale) ?>">
 <head>
     <meta charset="UTF-8">
-    <title>Create Account</title>
+    <title><?= htmlspecialchars($lang['create_account']) ?></title>
     <link rel="stylesheet" href="css/mainstyle.css">
 </head>
 <body class="auth-body">
     <div class="auth-card">
-        <div class="auth-title">Create Account</div>
+        <div class="auth-title"><?= htmlspecialchars($lang['create_account']) ?></div>
 
         <?php if (!empty($success_msg)): ?>
             <div class="auth-success-box">
@@ -102,18 +108,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <?php endif; ?>
 
         <form method="POST" action="register.php">
-            <input type="text" name="username" class="auth-input" placeholder="Username" value="<?= isset($username) ? htmlspecialchars($username) : '' ?>">
-            <input type="email" name="email" class="auth-input" placeholder="Email" value="<?= isset($email) ? htmlspecialchars($email) : '' ?>">
-            <input type="password" name="password" class="auth-input" placeholder="Password">
-            <input type="password" name="confirm_password" class="auth-input" placeholder="Confirm Password">
-            
-            <button type="submit" class="auth-btn">NEXT</button>
+            <input type="text"     name="username"         class="auth-input" placeholder="<?= htmlspecialchars($lang['ph_username']) ?>"         value="<?= isset($username) ? htmlspecialchars($username) : '' ?>">
+            <input type="email"    name="email"            class="auth-input" placeholder="<?= htmlspecialchars($lang['ph_email']) ?>"            value="<?= isset($email) ? htmlspecialchars($email) : '' ?>">
+            <input type="password" name="password"         class="auth-input" placeholder="<?= htmlspecialchars($lang['ph_password']) ?>">
+            <input type="password" name="confirm_password" class="auth-input" placeholder="<?= htmlspecialchars($lang['ph_confirm_password']) ?>">
+
+            <button type="submit" class="auth-btn"><?= htmlspecialchars($lang['reg_next_btn']) ?></button>
         </form>
 
         <div class="auth-footer-text">
-            Already have an account? <a href="login.php" class="link-primary">Login</a>
+            <?= htmlspecialchars($lang['already_account']) ?> <a href="login.php" class="link-primary"><?= htmlspecialchars($lang['login']) ?></a>
             <br><br>
-            <a href="index.php" class="link-primary">Return to Store</a>
+            <a href="index.php" class="link-primary"><?= htmlspecialchars($lang['return_to_store']) ?></a>
         </div>
     </div>
 </body>

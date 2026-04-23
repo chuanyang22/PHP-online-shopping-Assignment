@@ -6,6 +6,12 @@ require_once 'lib/helpers.php';
 
 auth('Member'); 
 
+// Load language file
+$locale = $_SESSION['lang'] ?? 'en';
+$allowed_locales = ['en', 'my', 'cn'];
+if (!in_array($locale, $allowed_locales)) $locale = 'en';
+require_once "lang/{$locale}.php";
+
 $error_msg = "";
 
 // Process the cropped image upload
@@ -41,10 +47,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['crop_data_base64'])) 
                 header("Location: profile.php?photo_updated=1");
                 exit();
             } else {
-                $error_msg = "Error: Failed to save the image to the server.";
+                $error_msg = $lang['error_save_failed'];
             }
         } else {
-            $error_msg = "Error: Invalid image data received.";
+            $error_msg = $lang['error_invalid_image'];
         }
     }
 }
@@ -67,7 +73,7 @@ if (!empty($user['profile_photo']) && file_exists('uploads/' . $user['profile_ph
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile Photo Workshop</title>
+    <title><?= htmlspecialchars($lang['photo_workshop_title']) ?></title>
 
     <!-- Shared site styles (auth-body background, auth-error-box, etc.) -->
     <link rel="stylesheet" href="css/mainstyle.css">
@@ -83,9 +89,9 @@ if (!empty($user['profile_photo']) && file_exists('uploads/' . $user['profile_ph
 
     <div class="workshop-card">
 
-        <h2 class="workshop-title">Profile Photo Workshop</h2>
+        <h2 class="workshop-title"><?= htmlspecialchars($lang['photo_workshop_title']) ?></h2>
         <p class="workshop-subtitle">
-            Select a new image below. You will be able to crop it perfectly in the next step.
+            <?= htmlspecialchars($lang['photo_workshop_subtitle']) ?>
         </p>
 
         <?php if (!empty($error_msg)): ?>
@@ -110,14 +116,14 @@ if (!empty($user['profile_photo']) && file_exists('uploads/' . $user['profile_ph
         <div class="workshop-btn-group">
             <button type="button" class="workshop-btn btn-upload" id="btn-upload"
                     onclick="document.getElementById('photo_input').click();">
-                📷 UPLOAD PHOTO
+                <?= htmlspecialchars($lang['btn_upload_photo']) ?>
             </button>
             <button type="button" class="workshop-btn btn-save-workshop" id="save-crop">
-                ✅ SAVE PROFILE PHOTO
+                <?= htmlspecialchars($lang['btn_save_photo']) ?>
             </button>
         </div>
 
-        <a href="profile.php" class="workshop-cancel-link">Cancel and go back</a>
+        <a href="profile.php" class="workshop-cancel-link"><?= htmlspecialchars($lang['cancel_go_back']) ?></a>
 
         <!-- Hidden: file picker & POST form -->
         <input type="file" id="photo_input" accept="image/*" class="hidden-file-input">
@@ -128,6 +134,13 @@ if (!empty($user['profile_photo']) && file_exists('uploads/' . $user['profile_ph
     </div><!-- /.workshop-card -->
 
     <script>
+        // Localised JS strings injected from PHP
+        var LANG = {
+            btnChangePhoto:  <?= json_encode($lang['btn_change_photo']) ?>,
+            cropperFailed:   <?= json_encode($lang['js_cropper_failed']) ?>,
+            fileReadFailed:  <?= json_encode($lang['js_file_read_failed']) ?>
+        };
+
         document.addEventListener('DOMContentLoaded', function () {
             var photoInput        = document.getElementById('photo_input');
             var initialView       = document.getElementById('initial-view');
@@ -152,7 +165,7 @@ if (!empty($user['profile_photo']) && file_exists('uploads/' . $user['profile_ph
                     cropperView.style.display  = 'block';
 
                     // Enable the save button
-                    btnUpload.innerHTML = '🔄 CHANGE PHOTO';
+                    btnUpload.innerHTML = LANG.btnChangePhoto;
                     saveCropButton.classList.add('active');
 
                     // Init cropper once the image has loaded
@@ -171,7 +184,7 @@ if (!empty($user['profile_photo']) && file_exists('uploads/' . $user['profile_ph
                                 scalable:     false
                             });
                         } catch (err) {
-                            alert('Cropping tool failed to load. Please ensure you are connected to the internet.');
+                            alert(LANG.cropperFailed);
                         }
                     };
 
@@ -179,7 +192,7 @@ if (!empty($user['profile_photo']) && file_exists('uploads/' . $user['profile_ph
                 };
 
                 reader.onerror = function () {
-                    alert('Your browser could not read this file. Please try a different image.');
+                    alert(LANG.fileReadFailed);
                 };
 
                 reader.readAsDataURL(file);

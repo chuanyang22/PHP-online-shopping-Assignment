@@ -130,7 +130,7 @@ $orders = $stmt->fetchAll();
                         </a>
                         
                         <?php if (in_array(order_status_normalized($order), ['Pending', 'Paid'], true)): ?>
-                            <form action="cancel_order.php" method="POST" style="margin: 0;" onsubmit="return confirm('<?= addslashes($lang['confirm_cancel'] ?? 'Are you sure you want to cancel this order? This cannot be undone.') ?>');">
+                            <form action="cancel_order.php" method="POST" class="m-0" onsubmit="return confirm('<?= addslashes($lang['confirm_cancel'] ?? 'Are you sure you want to cancel this order? This cannot be undone.') ?>');">
                                 <input type="hidden" name="order_id" value="<?= htmlspecialchars($order['id']) ?>">
                                 <button type="submit" class="btn-cancel-order">
                                     ❌ <?= $lang['cancel_order'] ?? 'Cancel Order' ?>

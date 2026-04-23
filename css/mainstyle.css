@@ -2242,3 +2242,32 @@ body.dark-mode .cart-toast {
     text-align: center;
 }
 .empty-orders p { color: var(--text-muted); margin-bottom: 20px; } /* Uses theme text */
+
+/* Checkout page extracted inline styles */
+.checkout-error-box {
+    background: #ffebee;
+    color: #c62828;
+    border-radius: 4px;
+}
+.checkout-order-summary-box {
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+.checkout-item-row {
+    border-bottom: 1px dashed #ccc;
+    padding-bottom: 10px;
+}
+.checkout-item-thumb {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+.checkout-total-amount {
+    color: #27ae60;
+}
+.checkout-shipping-address {
+    width: 100%;
+    border: 1px solid #ccc;
+}

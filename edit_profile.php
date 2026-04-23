@@ -24,16 +24,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->execute([$new_username, $new_email, $_SESSION['user_id']]);
 
     if ($stmt->fetch()) {
-        $error_msg = "That username or email is already taken. Please choose another.";
+        $error_msg = $lang['profile_taken'] ?? "That username or email is already taken. Please choose another.";
     } else {
         $stmt = $pdo->prepare("UPDATE member SET username = ?, email = ? WHERE id = ?");
         if ($stmt->execute([$new_username, $new_email, $_SESSION['user_id']])) {
             $_SESSION['username'] = $new_username;
-            $success_msg          = "Profile updated successfully!";
+            $success_msg          = $lang['profile_updated_success'] ?? "Profile updated successfully!";
             $user['username']     = $new_username;
             $user['email']        = $new_email;
         } else {
-            $error_msg = "Failed to update profile.";
+            $error_msg = $lang['profile_update_failed'] ?? "Failed to update profile.";
         }
     }
 }

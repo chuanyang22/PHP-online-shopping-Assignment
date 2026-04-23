@@ -11,6 +11,9 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $user_id = $_SESSION['user_id'];
+$current_lang = $_SESSION['lang'] ?? 'en';
+$lang_file = __DIR__ . "/lang/{$current_lang}.php";
+require_once file_exists($lang_file) ? $lang_file : __DIR__ . "/lang/en.php";
 
 // Fetch user info for display
 $stmt = $pdo->prepare("SELECT * FROM member WHERE id = ?");
@@ -19,20 +22,20 @@ $user = $stmt->fetch();
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?= htmlspecialchars($current_lang) ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Profile Hub</title>
+    <title><?= htmlspecialchars($lang['my_profile_hub'] ?? 'My Profile Hub') ?></title>
     <link rel="stylesheet" href="css/mainstyle.css">
 </head>
 <body class="auth-body">
     <div class="profile-card">
-        <h2>My Profile</h2>
+        <h2><?= htmlspecialchars($lang['my_profile'] ?? 'My Profile') ?></h2>
         <p>
-            <a href="index.php" class="profile-link">Back to Home</a> | 
-            <a href="logout.php" class="profile-link">Logout</a> |
-            <a href="member/order_history.php" class="profile-link">History</a> |
+            <a href="index.php" class="profile-link"><?= htmlspecialchars($lang['back_to_home'] ?? 'Back to Home') ?></a> | 
+            <a href="logout.php" class="profile-link"><?= htmlspecialchars($lang['logout'] ?? 'Logout') ?></a> |
+            <a href="member/order_history.php" class="profile-link"><?= htmlspecialchars($lang['history'] ?? 'History') ?></a> |
         </p>
         <br>
 
@@ -44,26 +47,26 @@ $user = $stmt->fetch();
         <?php endif; ?>
 
         <div class="profile-info">
-            <h3>Welcome, <?= htmlspecialchars($user['username']) ?>!</h3>
-            <p>Email: <?= htmlspecialchars($user['email']) ?></p>
-            <p>Member Level: <?= htmlspecialchars($user['role']) ?></p>
+            <h3><?= htmlspecialchars($lang['profile_welcome'] ?? 'Welcome') ?>, <?= htmlspecialchars($user['username']) ?>!</h3>
+            <p><?= htmlspecialchars($lang['email'] ?? 'Email') ?>: <?= htmlspecialchars($user['email']) ?></p>
+            <p><?= htmlspecialchars($lang['member_level'] ?? 'Member Level') ?>: <?= htmlspecialchars($user['role']) ?></p>
         </div>
 
         <hr class="profile-divider">
 
         <?php if (isset($_GET['photo_updated'])): ?>
-            <div class="auth-success-msg">✅ Profile photo updated successfully!</div>
+            <div class="auth-success-msg">✅ <?= htmlspecialchars($lang['profile_photo_updated'] ?? 'Profile photo updated successfully!') ?></div>
         <?php endif; ?>
 
         <div class="btn-group-col">
             <a href="upload_photo.php">
-                <button class="auth-btn btn-full-width">UPLOAD NEW PHOTO</button>
+                <button class="auth-btn btn-full-width"><?= htmlspecialchars($lang['upload_new_photo'] ?? 'Upload New Photo') ?></button>
             </a>
             <a href="change_password.php">
-                <button class="auth-btn btn-full-width">CHANGE PASSWORD</button>
+                <button class="auth-btn btn-full-width"><?= htmlspecialchars($lang['change_password'] ?? 'Change Password') ?></button>
             </a>
             <a href="edit_profile.php">
-                <button class="auth-btn btn-full-width">EDIT PROFILE INFO</button>
+                <button class="auth-btn btn-full-width"><?= htmlspecialchars($lang['edit_profile_info'] ?? 'Edit Profile Info') ?></button>
             </a>
         </div>
     </div>

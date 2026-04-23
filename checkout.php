@@ -117,18 +117,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && empty($error)) {
     <h2 class="text-center">💳 <?= $lang['checkout'] ?? 'Checkout' ?></h2>
 
     <?php if ($error): ?>
-        <div class="msg-error p-15 mb-20 text-center font-bold" style="background: #ffebee; color: #c62828; border-radius: 4px;"><?= htmlspecialchars($error) ?></div>
+        <div class="msg-error p-15 mb-20 text-center font-bold checkout-error-box"><?= htmlspecialchars($error) ?></div>
     <?php endif; ?>
 
-    <div class="order-summary-box mb-20 p-20" style="background: #f9f9f9; border: 1px solid #ddd; border-radius: 8px;">
+    <div class="order-summary-box mb-20 p-20 checkout-order-summary-box">
         <h3 class="text-center mb-15"><?= $lang['order_summary'] ?? 'Order Summary' ?></h3>
         
         <div class="checkout-items-list mb-20">
             <?php foreach($cart_items as $item): ?>
-                <div class="item-card flex align-center mb-10" style="border-bottom: 1px dashed #ccc; padding-bottom: 10px;">
+                <div class="item-card flex align-center mb-10 checkout-item-row">
                     <?php $img = (!empty($item['image_name']) && file_exists('uploads/'.$item['image_name'])) ? 'uploads/'.$item['image_name'] : 'uploads/default.png'; ?>
                     <div class="item-image mr-15">
-                        <img src="<?= $img ?>" alt="<?= htmlspecialchars($item['name']) ?>" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
+                        <img src="<?= $img ?>" alt="<?= htmlspecialchars($item['name']) ?>" class="checkout-item-thumb">
                     </div>
                     <div class="item-details flex-grow">
                         <div class="item-name font-bold"><?= htmlspecialchars($item['name']) ?></div>
@@ -141,7 +141,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && empty($error)) {
             <?php endforeach; ?>
         </div>
 
-        <h3 class="text-right mt-20" style="color: #27ae60;">
+        <h3 class="text-right mt-20 checkout-total-amount">
             Total: <strong>RM <?= number_format($cart_total, 2) ?></strong>
         </h3>
     </div>
@@ -152,8 +152,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && empty($error)) {
                 <?= $lang['shipping_address'] ?? 'Shipping Address' ?>:
             </label>
             <textarea name="shipping_address" id="shipping_address"
-                      rows="3" class="address-textarea w-full p-10 border-radius-4" 
-                      style="width: 100%; border: 1px solid #ccc;" required><?= htmlspecialchars($saved_address) ?></textarea>
+                      rows="3" class="address-textarea w-full p-10 border-radius-4 checkout-shipping-address" 
+                      required><?= htmlspecialchars($saved_address) ?></textarea>
         </div>
 
         <input type="hidden" name="paypal_order_id"   id="paypal_order_id">
